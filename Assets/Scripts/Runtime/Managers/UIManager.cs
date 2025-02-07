@@ -29,7 +29,7 @@ namespace Runtime.Managers
             CheckRemoteConfig();
             AddListeners();
             UpdateCoinText();
-            levelText.text = $"Level {PlayerPrefs.GetInt(PlayerPrefsKeys.FakeLevelIndexInt).ToString()}";
+            levelText.text = $"LEVEL \n {PlayerPrefs.GetInt(PlayerPrefsKeys.FakeLevelIndexInt).ToString()}";
         }
 
         private void CheckRemoteConfig()

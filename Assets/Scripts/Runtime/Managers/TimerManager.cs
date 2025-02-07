@@ -29,17 +29,18 @@ namespace Runtime.Managers
         private void Init()
         {
             _isTimerActive = true;
-            
-            if (PlayerPrefs.GetInt(PlayerPrefsKeys.CurrentLevelIndexInt) < 0 || PlayerPrefs.GetInt(PlayerPrefsKeys.CurrentLevelIndexInt) > RemoteConfigDummy.timers.Count)
+
+            if (PlayerPrefs.GetInt(PlayerPrefsKeys.CurrentLevelIndexInt) < 0 ||
+                PlayerPrefs.GetInt(PlayerPrefsKeys.CurrentLevelIndexInt) > RemoteConfigDummy.timers.Count)
             {
                 Debug.LogError("Invalid timer index. Using default timer value.");
                 _time = RemoteConfigDummy.DefaultTimer;
             }
             else
             {
-               _time = RemoteConfigDummy.timers[PlayerPrefs.GetInt(PlayerPrefsKeys.CurrentLevelIndexInt) - 1];
+                _time = RemoteConfigDummy.timers[PlayerPrefs.GetInt(PlayerPrefsKeys.CurrentLevelIndexInt) - 1];
             }
-            
+
             _originalColor = UIManager.Instance.timerText.color;
             _originalScale = UIManager.Instance.timerText.transform.localScale;
         }
@@ -50,19 +51,14 @@ namespace Runtime.Managers
             int seconds = _time % 60;
             UIManager.Instance.timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
 
-            UIManager.Instance.timerText.transform.DOKill(); 
-            UIManager.Instance.timerText.transform.localScale = Vector3.zero; 
-            UIManager.Instance.timerText.transform.DOScale(_originalScale, 0.2f); 
-
-         
             if (_time <= 10)
             {
                 UIManager.Instance.timerText.DOColor(Color.red, 0.5f).SetLoops(-1, LoopType.Yoyo);
             }
             else
             {
-                UIManager.Instance.timerText.DOKill(); 
-                UIManager.Instance.timerText.color = _originalColor; 
+                UIManager.Instance.timerText.DOKill();
+                UIManager.Instance.timerText.color = _originalColor;
             }
         }
 
