@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 413357963129677601}
-  - component: {fileID: 815777206693165742}
+  - component: {fileID: 5615564766690882451}
   m_Layer: 0
   m_Name: LevelEditor
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &815777206693165742
+--- !u!114 &5615564766690882451
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,10 +41,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 3190604509802385809}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a671cbeefe14782a5c2801bee72e3b1, type: 3}
+  m_Script: {fileID: 11500000, guid: 160949abc993c9b4db9794813de4ad30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  allLevelData: {fileID: 0}
-  colorData: {fileID: 11400000, guid: e65212faa0de42942a7ece2cf3e7d475, type: 2}
+  Width: 0
+  Height: 0
+  _spaceModifier: 50
+  _gridSize: 50
+  LevelData: {fileID: 0}
+  colorData: {fileID: 0}
+  itemPrefab: {fileID: 0}
+  itemsParentObject: {fileID: 0}
+  gridManager: {fileID: 0}
   gameColor: 0
-  currentLevelIndex: 0

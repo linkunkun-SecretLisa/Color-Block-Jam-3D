@@ -17,8 +17,9 @@ namespace Runtime.Managers
         
         public void IncressCoinAmount()
         {
-            coinAmount += GameManager.Instance.GetLevelCoinAmount();
+            coinAmount += 100;
             PlayerPrefs.SetInt(PlayerPrefsKeys.CoinsInt, coinAmount);
+            UIManager.Instance.UpdateCoinText();
         }
     }
 }

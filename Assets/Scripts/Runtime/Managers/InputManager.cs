@@ -17,10 +17,10 @@ public class InputManager : MonoBehaviour
 
     private void CheckInputBlock()
     {
-        if (GameManager.Instance.GameStates != GameStates.Gameplay)
-            isInputBlocked = true;
-        else 
-            isInputBlocked = false;
+        // if (GameManager.Instance.GameStates != GameStates.Gameplay)
+        //     isInputBlocked = true;
+        // else 
+        //     isInputBlocked = false;
     }
 
     private void GetInput()

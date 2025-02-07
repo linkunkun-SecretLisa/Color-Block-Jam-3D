@@ -71,7 +71,6 @@ namespace Runtime.Managers
             while (_isTimerActive)
             {
                 await UniTask.WaitForSeconds(1);
-                if (GameManager.Instance.GameStates != GameStates.Gameplay) await UniTask.WaitUntil(() => GameManager.Instance.GameStates == GameStates.Gameplay);
 
                 _time--;
                 UpdateTimerText();
