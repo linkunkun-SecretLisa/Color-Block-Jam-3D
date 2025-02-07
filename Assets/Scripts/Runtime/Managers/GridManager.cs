@@ -1,54 +1,100 @@
 using System.Collections.Generic;
-using Runtime.Entities;
 using UnityEngine;
+using Runtime.Entities;
+using Runtime.Data.ValueObject;
+using Runtime.Enums;
 
 namespace Runtime.Managers
 {
     public class GridManager : MonoBehaviour
     {
-        public int Width;
-        public int Height;
-        public float SpaceModifier;
+        [Header("Grid Settings Only Debug Dont Change")]
+        private int Width;
 
-        public List<Item> _itemList;
-
-        private void Awake()
-        {
-            _itemList = new List<Item>();
-        }
+        private int Height;
+        private float SpaceModifier;
+        private GameObject cellPrefab;
+        private List<Item> itemsList = new List<Item>();
+        private List<Cell> cells = new List<Cell>();
 
         public void Initialize(int width, int height, float spaceModifier)
         {
             Width = width;
             Height = height;
             SpaceModifier = spaceModifier;
+
+            CreateGrid();
+        }
+
+        private void CreateGrid()
+        {
+            ClearCells();
+
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    Vector3 position = GridSpaceToWorldSpace(new Vector2Int(x, y));
+                    Cell cell = Instantiate(cellPrefab, position, Quaternion.identity, transform).GetComponent<Cell>();
+                    cell.name = $"Cell {x}x{y}";
+                    cells.Add(cell);
+                }
+            }
+        }
+
+        public void UpdateCellData(LevelData levelData)
+        {
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    GridData gridData = levelData.GetGrid(x, y);
+                    Cell cell = cells[y * Width + x];
+
+                    if (gridData.isOccupied && gridData.gameColor != GameColor.None)
+                    {
+                        cell.Init(new Vector2Int(x, y), gridData.gameColor, this);
+                    }
+                }
+            }
+        }
+
+        private void ClearCells()
+        {
+            foreach (Cell cell in cells)
+            {
+                if (cell != null)
+                    DestroyImmediate(cell.gameObject);
+            }
+            cells.Clear();
         }
 
         public void AddItem(Item item)
         {
-            _itemList.Add(item);
+            itemsList.Add(item);
         }
 
         public void UpdateItemPosition(Item item, Vector2Int newPosition)
         {
-            // Eğer pozisyon bilgisi item'da varsa, buradan pozisyonu güncelleyebilirsin
-            // Örneğin: item.SetPosition(newPosition);
+            item.GridPosition = newPosition;
         }
 
         public List<Item> GetItems()
         {
-            return _itemList;
+            return itemsList;
         }
+
         public void RemoveItem(Item item)
         {
-            if (_itemList.Contains(item))
+            if (itemsList.Contains(item))
             {
-                _itemList.Remove(item);
+                itemsList.Remove(item);
             }
         }
+
         public void ClearItems()
         {
-            _itemList.Clear();
+            itemsList.Clear();
         }
 
         public Vector3 GridSpaceToWorldSpace(Vector2Int gridPosition)
@@ -69,7 +115,5 @@ namespace Runtime.Managers
             UnityEditor.EditorUtility.SetDirty(this);
 #endif
         }
-
-       
     }
 }

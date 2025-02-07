@@ -4,36 +4,26 @@ using Runtime.Entities;
 using Runtime.Enums;
 using Runtime.Managers;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Runtime.Helpers
 {
     [ExecuteInEditMode]
     public class LevelCreatorScript : MonoBehaviour
     {
-        [Header("Grid Settings")]
-        public int Width;
+        [Header("Grid Settings")] public int Width;
         public int Height;
-        [Range( 0f, 100f)]
-        public float _spaceModifier = 50f;
-        [Range( 50f, 100f)]
-        public float _gridSize = 50f;
-        
-        
-        [Header("References")]
-        public CD_LevelData LevelData;
+        [Range(0f, 100f)] public float spaceModifier = 50f;
+        [Range(50f, 100f)] public float gridSize = 50f;
+
+        [Header("References")] public CD_LevelData LevelData;
         public CD_GameColor colorData;
         public CD_GamePrefab itemPrefab;
         public GameObject itemsParentObject;
         public GridManager gridManager;
 
         public GameColor gameColor;
-        
-       
-       
+
         private LevelData _currentLevelData;
-       
-       
 
         private void OnEnable()
         {
@@ -47,90 +37,95 @@ namespace Runtime.Helpers
             {
                 LevelData.levelData = new LevelData();
             }
-            
-            if (LevelData != null)
-            {
-                SetCurrentLevelData();
-            }
+
+            SetCurrentLevelData();
         }
 
         public void GenerateLevelData()
         {
-            gridManager.Initialize(Width, Height, _spaceModifier);
-            
-            // Cleanup before generating new level
-            if (itemsParentObject != null)
+            if (itemsParentObject == null)
             {
-                DestroyImmediate(itemsParentObject);
-                gridManager.ClearItems();
+                itemsParentObject = new GameObject("LevelParent");
             }
-            
-            itemsParentObject = new GameObject("LevelParent"); // Create new parent object
 
+            gridManager.ClearItems();
+
+            gridManager.Initialize(Width, Height, spaceModifier);
+
+           
 
             for (int x = 0; x < Width; x++)
             {
                 for (int y = 0; y < Height; y++)
                 {
-                    if(LevelData.levelData.GetGrid(x,y).isOccupied && LevelData.levelData.GetGrid(x,y).gameColor != GameColor.None)
+                    GridData gridCell = LevelData.levelData.GetGrid(x, y);
+                    if (gridCell.isOccupied && gridCell.gameColor != GameColor.None)
                     {
-                        GameObject item = Instantiate(itemPrefab.gamePrefab.prefab.gameObject, GridSpaceToWorldSpace(x, y), Quaternion.identity, itemsParentObject.transform);
-                        item.GetComponent<Item>().Init(new Vector2Int(x, y), LevelData.levelData.GetGrid(x,y).gameColor, gridManager);
+                        Vector3 spawnPosition = GridSpaceToWorldSpace(x, y);
+                        MonoBehaviour item = Instantiate(itemPrefab.gamePrefab.prefab, spawnPosition,
+                            Quaternion.identity, itemsParentObject.transform);
+                        item.GetComponent<Item>().Init(new Vector2Int(x, y), gridCell.gameColor, gridManager);
                     }
                 }
             }
+            gridManager.UpdateCellData(LevelData.levelData);
             Debug.Log("Grid generated.");
         }
 
-        
         public Vector3 GridSpaceToWorldSpace(int x, int y)
         {
-            return new Vector3(x * _spaceModifier, 0, y * _spaceModifier);
+            return new Vector3(x * spaceModifier, 0, y * spaceModifier);
         }
 
         public Vector2Int WorldSpaceToGridSpace(Vector3 worldPosition)
         {
-            int x = Mathf.RoundToInt(worldPosition.x / _spaceModifier);
-            int y = Mathf.RoundToInt(worldPosition.z / _spaceModifier);
+            int x = Mathf.RoundToInt(worldPosition.x / spaceModifier);
+            int y = Mathf.RoundToInt(worldPosition.z / spaceModifier);
             return new Vector2Int(x, y);
         }
 
         private void SetCurrentLevelData()
         {
-            if (LevelData.levelData.Grids == null || LevelData.levelData.Grids.Length != _currentLevelData.Grids.Length)
+            // Initialize LevelData if not already initialized
+            if (LevelData.levelData.Grids == null || LevelData.levelData.Grids.Length != Width * Height)
             {
-                LevelData.levelData.Grids = new GridData[_currentLevelData.Grids.Length];
+                LevelData.levelData.Width = Width;
+                LevelData.levelData.Height = Height;
+                LevelData.levelData.Grids = new GridData[Width * Height];
+                for (int x = 0; x < Width; x++)
+                {
+                    for (int y = 0; y < Height; y++)
+                    {
+                        int index = y * Width + x;
+                        LevelData.levelData.Grids[index] = new GridData
+                        {
+                            isOccupied = false,
+                            gameColor = GameColor.None,
+                            position = new Vector2Int(x, y)
+                        };
+                    }
+                }
             }
-            
+
             _currentLevelData = new LevelData
             {
-                Width = LevelData.levelData.Width,
-                Height = LevelData.levelData.Height,
+                Width = Width,
+                Height = Height,
                 Grids = new GridData[LevelData.levelData.Grids.Length]
             };
 
             for (int i = 0; i < LevelData.levelData.Grids.Length; i++)
             {
-                _currentLevelData.Grids[i] = new GridData
-                {
-                    isOccupied = LevelData.levelData.Grids[i].isOccupied,
-                    gameColor = LevelData.levelData.Grids[i].gameColor,
-                    position = LevelData.levelData.Grids[i].position
-                };
+                _currentLevelData.Grids[i] = LevelData.levelData.Grids[i];
             }
-
-            Width = _currentLevelData.Height;
-            Height = _currentLevelData.Width;
         }
 
         public void ToggleGridOccupancy(int x, int y)
         {
-            var grid = _currentLevelData.GetGrid(x, y);
+            GridData grid = _currentLevelData.GetGrid(x, y);
             grid.isOccupied = !grid.isOccupied;
             _currentLevelData.SetGrid(x, y, grid);
         }
-
-       
 
         public LevelData GetCurrentLevelData()
         {
@@ -139,15 +134,13 @@ namespace Runtime.Helpers
 
         public int GetRows()
         {
-            return Width;
+            return Height;
         }
 
         public int GetColumns()
         {
-            return Height;
+            return Width;
         }
-
-  
 
         public void SaveLevelData()
         {
@@ -155,15 +148,10 @@ namespace Runtime.Helpers
             {
                 LevelData.levelData.Grids = new GridData[_currentLevelData.Grids.Length];
             }
-                
+
             for (int i = 0; i < _currentLevelData.Grids.Length; i++)
             {
-                LevelData.levelData.Grids[i] = new GridData
-                {
-                    isOccupied = _currentLevelData.Grids[i].isOccupied,
-                    gameColor = _currentLevelData.Grids[i].gameColor,
-                    position = _currentLevelData.Grids[i].position
-                };
+                LevelData.levelData.Grids[i] = _currentLevelData.Grids[i];
             }
 
             LevelData.levelData.Width = _currentLevelData.Width;
@@ -183,20 +171,14 @@ namespace Runtime.Helpers
             {
                 for (int y = 0; y < Height; y++)
                 {
-                    //ScriptableObject
-                     LevelData.levelData.SetGrid(x, y, new GridData
-                     {
-                         isOccupied = false,
-                         gameColor = GameColor.None,
-                         position = new Vector2Int(x, y)
-                     });
-                    //Editor
-                    _currentLevelData.SetGrid(x, y, new GridData
+                    GridData gridData = new GridData
                     {
                         isOccupied = false,
-                         gameColor = GameColor.None,
+                        gameColor = GameColor.None,
                         position = new Vector2Int(x, y)
-                    });
+                    };
+                    LevelData.levelData.SetGrid(x, y, gridData);
+                    _currentLevelData.SetGrid(x, y, gridData);
                 }
             }
 
@@ -204,10 +186,11 @@ namespace Runtime.Helpers
         }
 
         public Color GetGridColor(Vector2Int position)
-       {
-            var grid = _currentLevelData.GetGrid(position.x, position.y);
+        {
+            GridData grid = _currentLevelData.GetGrid(position.x, position.y);
             return grid.isOccupied ? colorData.gameColorsData[(int)grid.gameColor].color : Color.white;
         }
+
         public Color GetSelectedGridColor()
         {
             foreach (var data in colorData.gameColorsData)
@@ -217,13 +200,13 @@ namespace Runtime.Helpers
                     return data.color;
                 }
             }
-           
+
             return Color.white;
         }
-        
+
         public void SetGridColor(int x, int y)
         {
-            var grid = _currentLevelData.GetGrid(x, y);
+            GridData grid = _currentLevelData.GetGrid(x, y);
             grid.gameColor = gameColor;
             _currentLevelData.SetGrid(x, y, grid);
         }

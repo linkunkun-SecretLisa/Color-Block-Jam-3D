@@ -72,7 +72,7 @@ namespace Editor
                     
                     GUI.color = levelCreatorScript.GetGridColor(new Vector2Int(x, y));
 
-                    if (GUILayout.Button($"{x}x{y}", GUILayout.Width(levelCreatorScript._gridSize), GUILayout.Height(levelCreatorScript._gridSize)))
+                    if (GUILayout.Button($"{x}x{y}", GUILayout.Width(levelCreatorScript.gridSize), GUILayout.Height(levelCreatorScript.gridSize)))
                     {
                         levelCreatorScript.ToggleGridOccupancy(x, y);
                         levelCreatorScript.SetGridColor(x, y);
