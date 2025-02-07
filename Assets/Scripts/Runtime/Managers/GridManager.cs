@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Runtime.Entities;
@@ -13,9 +14,15 @@ namespace Runtime.Managers
 
         private int Height;
         private float SpaceModifier;
-        private GameObject cellPrefab;
+
+        [SerializeField] private GameObject cellPrefab;
+        [SerializeField] private GameObject cellParent;
         private List<Item> itemsList = new List<Item>();
         private List<Cell> cells = new List<Cell>();
+
+        private void Start()
+        {
+        }
 
         public void Initialize(int width, int height, float spaceModifier)
         {
@@ -35,7 +42,8 @@ namespace Runtime.Managers
                 for (int y = 0; y < Height; y++)
                 {
                     Vector3 position = GridSpaceToWorldSpace(new Vector2Int(x, y));
-                    Cell cell = Instantiate(cellPrefab, position, Quaternion.identity, transform).GetComponent<Cell>();
+                    Cell cell = Instantiate(cellPrefab, position, Quaternion.identity, cellParent.transform)
+                        .GetComponent<Cell>();
                     cell.name = $"Cell {x}x{y}";
                     cells.Add(cell);
                 }
@@ -49,7 +57,7 @@ namespace Runtime.Managers
                 for (int y = 0; y < Height; y++)
                 {
                     GridData gridData = levelData.GetGrid(x, y);
-                    Cell cell = cells[y * Width + x];
+                    Cell cell = cells[x * Width + y];
 
                     if (gridData.isOccupied && gridData.gameColor != GameColor.None)
                     {
@@ -61,11 +69,13 @@ namespace Runtime.Managers
 
         private void ClearCells()
         {
-            foreach (Cell cell in cells)
+            if (cellParent != null)
             {
-                if (cell != null)
-                    DestroyImmediate(cell.gameObject);
+                DestroyImmediate(cellParent);
             }
+
+            cellParent = new GameObject("CellParent");
+
             cells.Clear();
         }
 
@@ -97,6 +107,11 @@ namespace Runtime.Managers
             itemsList.Clear();
         }
 
+        public List<Cell> GetCells()
+        { 
+            return cells;
+        }
+
         public Vector3 GridSpaceToWorldSpace(Vector2Int gridPosition)
         {
             return new Vector3(gridPosition.x * SpaceModifier, 0, gridPosition.y * SpaceModifier);
@@ -106,6 +121,10 @@ namespace Runtime.Managers
         {
             int x = Mathf.RoundToInt(worldPosition.x / SpaceModifier);
             int y = Mathf.RoundToInt(worldPosition.z / SpaceModifier);
+            
+            x = Mathf.Clamp(x, 0, Width - 1);
+            y = Mathf.Clamp(y, 0, Height - 1);
+
             return new Vector2Int(x, y);
         }
 

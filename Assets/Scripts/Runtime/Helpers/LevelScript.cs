@@ -1,3 +1,4 @@
+using System;
 using Runtime.Data.UnityObject;
 using Runtime.Data.ValueObject;
 using Runtime.Entities;
@@ -39,19 +40,21 @@ namespace Runtime.Helpers
             }
 
             SetCurrentLevelData();
+            
         }
+        
 
         public void GenerateLevelData()
         {
-            if (itemsParentObject == null)
+            if (itemsParentObject != null)
             {
-                itemsParentObject = new GameObject("LevelParent");
+                DestroyImmediate(itemsParentObject);
             }
 
             gridManager.ClearItems();
 
             gridManager.Initialize(Width, Height, spaceModifier);
-
+            itemsParentObject = new GameObject("LevelParent");
            
 
             for (int x = 0; x < Width; x++)
@@ -62,8 +65,7 @@ namespace Runtime.Helpers
                     if (gridCell.isOccupied && gridCell.gameColor != GameColor.None)
                     {
                         Vector3 spawnPosition = GridSpaceToWorldSpace(x, y);
-                        MonoBehaviour item = Instantiate(itemPrefab.gamePrefab.prefab, spawnPosition,
-                            Quaternion.identity, itemsParentObject.transform);
+                        MonoBehaviour item = Instantiate(itemPrefab.gamePrefab.prefab, spawnPosition, Quaternion.identity, itemsParentObject.transform);
                         item.GetComponent<Item>().Init(new Vector2Int(x, y), gridCell.gameColor, gridManager);
                     }
                 }
@@ -86,7 +88,6 @@ namespace Runtime.Helpers
 
         private void SetCurrentLevelData()
         {
-            // Initialize LevelData if not already initialized
             if (LevelData.levelData.Grids == null || LevelData.levelData.Grids.Length != Width * Height)
             {
                 LevelData.levelData.Width = Width;
