@@ -11,7 +11,8 @@ namespace Runtime.Helpers
     [ExecuteInEditMode]
     public class LevelCreatorScript : MonoBehaviour
     {
-        [Header("Grid Settings")] public int Width;
+        [Header("Grid Settings")] 
+        public int Width;
         public int Height;
         [Range(0f, 100f)] public float spaceModifier = 50f;
         [Range(50f, 100f)] public float gridSize = 50f;

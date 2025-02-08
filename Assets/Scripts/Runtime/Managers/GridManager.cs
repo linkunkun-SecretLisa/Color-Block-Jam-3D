@@ -16,7 +16,9 @@ namespace Runtime.Managers
         private float SpaceModifier;
 
         [SerializeField] private GameObject cellPrefab;
+        [SerializeField] private GameObject ObstaclePrefab;
         [SerializeField] private GameObject cellParent;
+        [SerializeField] private GameObject obstacleParent;
         private List<Item> itemsList = new List<Item>();
         private List<Cell> cells = new List<Cell>();
 
@@ -46,6 +48,43 @@ namespace Runtime.Managers
                         .GetComponent<Cell>();
                     cell.name = $"Cell {x}x{y}";
                     cells.Add(cell);
+                }
+            }
+
+            CreateObstaclesAroundGrid();
+        }
+
+        private void CreateObstaclesAroundGrid()
+        {
+            if (obstacleParent != null)
+            {
+                DestroyImmediate(obstacleParent);
+            }
+
+            obstacleParent = new GameObject("ObstacleParent");
+
+            for (int x = -1; x <= Width; x++)
+            {
+                for (int y = -1; y <= Height; y++)
+                {
+                    if ((x == -1 || x == Width) && (y >= 0 && y < Height))
+                    {
+                        if (y % Mathf.Max(1, Height / 4) == 0)
+                        {
+                            Vector3 position = GridSpaceToWorldSpace(new Vector2Int(x, y));
+                            Quaternion rotation = (x == -1) ? Quaternion.Euler(0, 90, 0) : Quaternion.Euler(0, -90, 0);
+                            Instantiate(ObstaclePrefab, position, rotation, obstacleParent.transform);
+                        }
+                    }
+                    else if ((y == -1 || y == Height) && (x >= 0 && x < Width))
+                    {
+                        if (x % Mathf.Max(1, Width / 4) == 0)
+                        {
+                            Vector3 position = GridSpaceToWorldSpace(new Vector2Int(x, y));
+                            Quaternion rotation = (y == -1) ? Quaternion.Euler(0, 0, 0) : Quaternion.Euler(0, 180, 0);
+                            Instantiate(ObstaclePrefab, position, rotation, obstacleParent.transform);
+                        }
+                    }
                 }
             }
         }
@@ -108,7 +147,7 @@ namespace Runtime.Managers
         }
 
         public List<Cell> GetCells()
-        { 
+        {
             return cells;
         }
 
@@ -121,7 +160,7 @@ namespace Runtime.Managers
         {
             int x = Mathf.RoundToInt(worldPosition.x / SpaceModifier);
             int y = Mathf.RoundToInt(worldPosition.z / SpaceModifier);
-            
+
             x = Mathf.Clamp(x, 0, Width - 1);
             y = Mathf.Clamp(y, 0, Height - 1);
 

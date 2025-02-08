@@ -7,7 +7,8 @@ namespace Editor
     [CustomEditor(typeof(LevelCreatorScript))]
     public class LevelCreatorEditor : UnityEditor.Editor
     {
-        
+        private bool drawGrid = true;
+
         public override void OnInspectorGUI()
         {
             LevelCreatorScript levelCreatorScript = (LevelCreatorScript)target;
@@ -17,9 +18,10 @@ namespace Editor
                 fontSize = 16,
                 alignment = TextAnchor.UpperLeft
             };
+
             
             DrawDefaultInspector();
-
+            EditorGUILayout.HelpBox("If you are going to change the width and height, first do Undraw Grid and then load grid again", MessageType.Info);
             EditorGUILayout.Space();
 
             if (GUILayout.Button("Generate Level"))
@@ -40,18 +42,24 @@ namespace Editor
             if (GUILayout.Button("Load Grid"))
             {
                 levelCreatorScript.LoadLevelData();
+                drawGrid = true;
             }
 
             EditorGUILayout.EndHorizontal();
 
-            if (GUILayout.Button("Reset Grid"))
+            if (GUILayout.Button("Reset Grid Data"))
             {
                 levelCreatorScript.ResetGridData();
             }
 
+            if (GUILayout.Button("Undraw Grid"))
+            {
+                drawGrid = false;
+            }
+
             EditorGUILayout.LabelField("Grid", titleStyle);
 
-            if (levelCreatorScript.GetCurrentLevelData() != null && levelCreatorScript.GetCurrentLevelData().Grids != null)
+            if (drawGrid && levelCreatorScript.GetCurrentLevelData() != null && levelCreatorScript.GetCurrentLevelData().Grids != null)
             {
                 DrawGrid(levelCreatorScript);
             }
@@ -69,7 +77,6 @@ namespace Editor
 
                 for (int x = 0; x < columns; x++)
                 {
-                    
                     GUI.color = levelCreatorScript.GetGridColor(new Vector2Int(x, y));
 
                     if (GUILayout.Button($"{x}x{y}", GUILayout.Width(levelCreatorScript.gridSize), GUILayout.Height(levelCreatorScript.gridSize)))
@@ -77,7 +84,7 @@ namespace Editor
                         levelCreatorScript.ToggleGridOccupancy(x, y);
                         levelCreatorScript.SetGridColor(x, y);
                     }
-                     
+
                     GUILayout.Space(5);
                 }
 

@@ -282,6 +282,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   sphereCastRadius: 0.1
+  gridManager: {fileID: 6243831926673530150}
+  selectedItem: {fileID: 0}
+  isInputBlocked: 0
+  moveSpeed: 10
 --- !u!1 &1897738166517254852
 GameObject:
   m_ObjectHideFlags: 0
@@ -307,13 +311,13 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1897738166517254852}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0.00015183074, y: 0.00046910907, z: 0.0011430499, w: 0.9999992}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 3099617873959190993}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0.017, y: 0.054, z: 0.131}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: -57}
@@ -611,7 +615,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.28025985, g: 0.6363436, b: 0.8867924, a: 1}
+  m_Color: {r: 0, g: 0.5870967, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -718,7 +722,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.28025985, g: 0.6363436, b: 0.8867924, a: 1}
+  m_Color: {r: 0, g: 0.5882353, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -794,7 +798,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.17986828, g: 0.54986, b: 0.8113208, a: 1}
+  m_Color: {r: 0, g: 0.5882353, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -886,7 +890,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 0.13
+  m_PixelsPerUnitMultiplier: 0.19
 --- !u!1 &5081866831314661669
 GameObject:
   m_ObjectHideFlags: 0
@@ -1200,7 +1204,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1562931937873758865}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1216,14 +1220,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3ea3cfa9872406b942664992cd33d6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Width: 2
-  Height: 2
-  SpaceModifier: 2.9
-  _itemList:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  cellPrefab: {fileID: 6721011999477111995, guid: 33fcd3d500aff304d851ba3d688d87d2,
+    type: 3}
+  cellParent: {fileID: 0}
 --- !u!1 &6975015598365083410
 GameObject:
   m_ObjectHideFlags: 0
@@ -1830,7 +1829,7 @@ Transform:
   m_GameObject: {fileID: 8974703613485662955}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -1.265}
+  m_LocalPosition: {x: 0, y: -0, z: -1.265}
   m_LocalScale: {x: 5.0393, y: 5.0393, z: 5.0393}
   m_ConstrainProportionsScale: 0
   m_Children: []
