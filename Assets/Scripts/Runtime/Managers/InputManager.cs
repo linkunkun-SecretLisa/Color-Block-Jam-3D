@@ -1,5 +1,4 @@
 using Runtime.Entities;
-using Runtime.Enums;
 using Runtime.Managers;
 using UnityEngine;
 
@@ -10,48 +9,21 @@ public class InputManager : MonoBehaviour
     [SerializeField] private GridManager gridManager;
     [SerializeField] private Item selectedItem;
     [SerializeField] private bool isInputBlocked;
+    [SerializeField] private float moveSpeed = 10f;
+
+    // The world coordinate on the plane (at selected item’s Y) when the touch begins.
+    private Vector3 initialTouchWorldPosition;
+    // The offset between the object's position and the touch point. This is computed at the start of a drag.
+    private Vector3 touchOffset;
 
     void Update()
     {
-        CheckInputBlock();
-        if (!isInputBlocked) GetInput();
-    }
-
-    private void CheckInputBlock()
-    {
-        // if (GameManager.Instance.GameStates != GameStates.Gameplay)
-        //     isInputBlocked = true;
-        // else
-        //     isInputBlocked = false;
+        if (!isInputBlocked) 
+            GetInput();
     }
 
     private void GetInput()
     {
-        #region Mobile Input
-
-        // if (Input.touchCount > 0)
-        // {
-        //     Touch touch = Input.GetTouch(0);
-        //     switch (touch.phase)
-        //     {
-        //         case TouchPhase.Began:
-        //             OnTouchStart(touch.position);
-        //             break;
-        //         case TouchPhase.Moved:
-        //         case TouchPhase.Stationary:
-        //             OnTouch(touch.position);
-        //             break;
-        //         case TouchPhase.Ended:
-        //         case TouchPhase.Canceled:
-        //             OnTouchEnd(touch.position);
-        //             break;
-        //     }
-        // }
-
-        #endregion
-
-        #region PC Input
-
         if (Input.GetMouseButtonDown(0))
         {
             OnTouchStart(Input.mousePosition);
@@ -64,65 +36,82 @@ public class InputManager : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
-            OnTouchEnd(Input.mousePosition);
+            OnTouchEnd();
         }
-
-        #endregion
     }
 
-    private void OnTouchStart(Vector3 position)
+    private void OnTouchStart(Vector3 screenPosition)
     {
-        Ray ray = Camera.main.ScreenPointToRay(position);
-        RaycastHit hit;
-
-        if (Physics.SphereCast(ray, sphereCastRadius, out hit, Mathf.Infinity, layerMask))
+        Ray ray = Camera.main.ScreenPointToRay(screenPosition);
+        if (Physics.SphereCast(ray, sphereCastRadius, out RaycastHit hit, Mathf.Infinity, layerMask))
         {
             selectedItem = hit.transform.GetComponent<Item>();
             if (selectedItem != null)
             {
-                // selectedItem.OnSelected();
-            }
-        }
-    }
-
-    private void OnTouch(Vector3 position)
-    {
-        if (selectedItem != null)
-        {
-            Ray ray = Camera.main.ScreenPointToRay(position);
-            RaycastHit hit;
-
-            if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask))
-            {
-                Vector3 newPosition = hit.point;
-                newPosition.y = selectedItem.transform.position.y; 
-
-                bool isCanMoveX, isCanMoveZ;
-                if (selectedItem.CanMoveInXZ(newPosition, out isCanMoveX, out isCanMoveZ))
+                // Use the object's current Y position as the plane height.
+                Plane plane = new Plane(Vector3.up, new Vector3(0, selectedItem.transform.position.y, 0));
+                if (plane.Raycast(ray, out float enter))
                 {
-                    if (isCanMoveX)
-                    {
-                        selectedItem.transform.position = new Vector3(newPosition.x, selectedItem.transform.position.y, selectedItem.transform.position.z);
-                    }
-                    if (isCanMoveZ)
-                    {
-                        selectedItem.transform.position = new Vector3(selectedItem.transform.position.x, selectedItem.transform.position.y, newPosition.z);
-                    }
+                    initialTouchWorldPosition = ray.GetPoint(enter);
+                    // Compute the offset between the object's current position and the touch world position.
+                    touchOffset = selectedItem.transform.position - initialTouchWorldPosition;
                 }
             }
         }
     }
 
-    private void OnTouchEnd(Vector3 position)
+    private void OnTouch(Vector3 screenPosition)
     {
         if (selectedItem != null)
         {
+            // Use the current Y of the object as the plane's height.
+            Ray ray = Camera.main.ScreenPointToRay(screenPosition);
+            Plane plane = new Plane(Vector3.up, new Vector3(0, selectedItem.transform.position.y, 0));
+            if (plane.Raycast(ray, out float enter))
+            {
+                Vector3 currentTouchWorldPosition = ray.GetPoint(enter);
+                // The intended position is the new touch position plus the offset computed at touch start.
+                Vector3 intendedPosition = currentTouchWorldPosition + touchOffset;
+                intendedPosition.y = selectedItem.transform.position.y; // keep Y constant
+
+                // Compute th delta from the current position.
+                Vector3 delta = intendedPosition - selectedItem.transform.position;
+
+                bool canMoveX, canMoveZ;
+                Vector3 allowedDelta = Vector3.zero;
+
+                if (selectedItem.CanMoveInXZ(selectedItem.transform.position + new Vector3(delta.x, 0, 0), out canMoveX, out canMoveZ))
+                {
+                    allowedDelta.x = canMoveX ? delta.x : 0;
+                }
+                // Check if movement in Z axis is allowed.
+                if (selectedItem.CanMoveInXZ(selectedItem.transform.position + new Vector3(0, 0, delta.z), out canMoveX, out canMoveZ))
+                {
+                    allowedDelta.z = canMoveZ ? delta.z : 0;
+                }
+
+                // Calculate new target position based on allowed movement.
+                Vector3 targetPosition = selectedItem.transform.position + allowedDelta;
+                targetPosition.y = selectedItem.transform.position.y;
+
+                // Use Lerp for smooth movement.
+                selectedItem.transform.position = Vector3.Lerp(selectedItem.transform.position, targetPosition, Time.deltaTime * moveSpeed);
+            }
+        }
+    }
+
+    private void OnTouchEnd()
+    {
+        if (selectedItem != null)
+        {
+            // Snap the item to grid position.
             Vector2Int gridPosition = gridManager.WorldSpaceToGridSpace(selectedItem.transform.position);
             Vector3 snapPosition = gridManager.GridSpaceToWorldSpace(gridPosition);
             snapPosition.y = selectedItem.transform.position.y;
             selectedItem.transform.position = snapPosition;
-            // selectedItem.OnReleased();
+
+            // Clear the selection.
             selectedItem = null;
         }
     }
-}
+} 

@@ -9,7 +9,7 @@ namespace Runtime.Entities
     {
         public Vector2Int GridPosition;
         public GameColor itemColor;
-        public CD_ItemParameters itemParametersData;
+        public ItemSize itemSize;
         public Renderer Renderer;
         public CD_GameColor colorData;
         [SerializeField] private float raycastDistance = 1.0f;

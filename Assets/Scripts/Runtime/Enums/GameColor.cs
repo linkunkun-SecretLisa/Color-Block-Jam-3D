@@ -6,9 +6,5 @@ namespace Runtime.Enums
         Blue, 
         Green, 
         Orange, 
-        Pink, 
-        Purple, 
-        Red, 
-        Yellow,
     }
 }

@@ -65,7 +65,7 @@ namespace Runtime.Helpers
                     if (gridCell.isOccupied && gridCell.gameColor != GameColor.None)
                     {
                         Vector3 spawnPosition = GridSpaceToWorldSpace(x, y);
-                        MonoBehaviour item = Instantiate(itemPrefab.gamePrefab.prefab, spawnPosition, Quaternion.identity, itemsParentObject.transform);
+                        MonoBehaviour item = Instantiate(itemPrefab.gamePrefab[0].prefab, spawnPosition + new Vector3(0,0.25f,0), Quaternion.identity, itemsParentObject.transform);
                         item.GetComponent<Item>().Init(new Vector2Int(x, y), gridCell.gameColor, gridManager);
                     }
                 }
