@@ -48,13 +48,12 @@ public class InputManager : MonoBehaviour
             selectedItem = hit.transform.GetComponent<Item>();
             if (selectedItem != null)
             {
-                // Use the object's current Y position as the plane height.
                 Plane plane = new Plane(Vector3.up, new Vector3(0, selectedItem.transform.position.y, 0));
                 if (plane.Raycast(ray, out float enter))
                 {
                     initialTouchWorldPosition = ray.GetPoint(enter);
-                    // Compute the offset between the object's current position and the touch world position.
                     touchOffset = selectedItem.transform.position - initialTouchWorldPosition;
+                    selectedItem.OnSelected();
                 }
             }
         }
@@ -104,13 +103,11 @@ public class InputManager : MonoBehaviour
     {
         if (selectedItem != null)
         {
-            // Snap the item to grid position.
             Vector2Int gridPosition = gridManager.WorldSpaceToGridSpace(selectedItem.transform.position);
             Vector3 snapPosition = gridManager.GridSpaceToWorldSpace(gridPosition);
             snapPosition.y = selectedItem.transform.position.y;
             selectedItem.transform.position = snapPosition;
-
-            // Clear the selection.
+            selectedItem.OnDeselected();
             selectedItem = null;
         }
     }

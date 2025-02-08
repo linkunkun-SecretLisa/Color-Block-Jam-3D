@@ -24,6 +24,17 @@ namespace Runtime.Entities
             ApplyColor();
         }
 
+        public void OnSelected()
+        {
+            
+            Renderer.material.SetFloat("_OutlineWidth", 5f);
+        }
+        
+        public void OnDeselected()
+        {
+            Renderer.material.SetFloat("_OutlineWidth", 0.0f); 
+        }
+
         private void ApplyColor()
         {
             Renderer.sharedMaterial = colorData.gameColorsData[(int)itemColor].materialColor;
@@ -36,6 +47,7 @@ namespace Runtime.Entities
             {
                 return hit.transform == transform;
             }
+
             return true;
         }
 
