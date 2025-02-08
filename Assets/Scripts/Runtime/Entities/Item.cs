@@ -7,21 +7,26 @@ namespace Runtime.Entities
 {
     public class Item : MonoBehaviour
     {
-        public Vector2Int GridPosition;
         public ItemChild[] childItems;
+
         public GameColor itemColor;
+
         // public ItemSize itemSize;
         public Renderer Renderer;
         public CD_GameColor colorData;
-   
+
 
         public void Init(Vector2Int gridPosition, GameColor gameColor, GridManager gridManager)
         {
-            GridPosition = gridPosition;
+            SetChildsGridPosition(gridPosition);
             itemColor = gameColor;
             gridManager.AddItem(this);
-            gridManager.SetDirty();
             ApplyColor();
+        }
+
+        public void SetChildsGridPosition(Vector2Int gridPosition)
+        {
+            childItems[0].SetGridPosition(gridPosition);
         }
 
         public void OnSelected()
@@ -31,29 +36,28 @@ namespace Runtime.Entities
 
         public void OnDeselected(Vector2Int gridPos)
         {
-            GridPosition = gridPos;
             Renderer.material.SetFloat("_OutlineWidth", 0.0f);
+            SetChildsGridPosition(gridPos);
         }
 
         private void ApplyColor()
         {
             Renderer.sharedMaterial = colorData.gameColorsData[(int)itemColor].materialColor;
         }
-        
-        public bool CanMoveInXZ(Vector3 transformPosition, out bool canMoveX, out bool canMoveZ)
+
+        public bool CanChildsMoveInXZ(Vector3 targetPosition, out bool canMoveX, out bool canMoveZ)
         {
             canMoveX = true;
             canMoveZ = true;
             foreach (var item in childItems)
             {
-                if (!item.CanMoveInXZ(transformPosition, out bool isCanMoveX, out bool isCanMoveZ))
+                if (!item.CanMoveInXZ(targetPosition, out bool isCanMoveX, out bool isCanMoveZ))
                 {
                     canMoveX = isCanMoveX;
                     canMoveZ = isCanMoveZ;
                     return false;
                 }
             }
-
             return true;
         }
     }

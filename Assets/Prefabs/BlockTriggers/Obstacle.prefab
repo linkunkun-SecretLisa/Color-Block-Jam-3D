@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1692565035503344410}
   - component: {fileID: 2903791525458151528}
   - component: {fileID: 8353724274543355621}
-  m_Layer: 3
+  m_Layer: 6
   m_Name: Obstacle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 6312276995306599249}
   - component: {fileID: 2016406619126100671}
   - component: {fileID: 251427620964506386}
-  m_Layer: 3
+  m_Layer: 6
   m_Name: ObstaclePhysic
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -241,6 +241,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: ObstacleVisual
+      objectReference: {fileID: 0}
+    - target: {fileID: 6727282044160289539, guid: 97a298915c6097a4bad8f8935a0fa52a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
