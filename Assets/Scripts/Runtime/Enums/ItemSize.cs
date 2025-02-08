@@ -12,6 +12,6 @@ namespace Runtime.Enums
         TwoByTwo,
 
         [LabelText("3x2")]
-        ThreeByThree,
+        ThreeByTwo,
     }
 }

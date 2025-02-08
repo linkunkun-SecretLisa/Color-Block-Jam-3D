@@ -148,10 +148,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GridPosition: {x: 0, y: 0}
   itemColor: 1
-  itemSize: 2
-  Renderer: {fileID: 0}
+  itemSize: 1
+  Renderer: {fileID: 6116422793588740008}
   colorData: {fileID: 11400000, guid: e65212faa0de42942a7ece2cf3e7d475, type: 2}
   raycastDistance: 0.5
   obstacleLayerMask:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 72

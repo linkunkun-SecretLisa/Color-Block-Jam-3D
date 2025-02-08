@@ -16,12 +16,15 @@ namespace Runtime.Helpers
         [Range(0f, 100f)] public float spaceModifier = 50f;
         [Range(50f, 100f)] public float gridSize = 50f;
 
-        [Header("References")] public CD_LevelData LevelData;
+        [Header("References")] 
+        public CD_LevelData LevelData;
         public CD_GameColor colorData;
         public CD_GamePrefab itemPrefab;
         public GameObject itemsParentObject;
         public GridManager gridManager;
 
+        public ItemSize itemSize; // item sizes == 1x1, 2x2, 3x2 and when we select one of them, we can place the item on the grid
+        public Vector2Int itemRotation; // only x and z axis rotation
         public GameColor gameColor;
 
         private LevelData _currentLevelData;
@@ -40,9 +43,7 @@ namespace Runtime.Helpers
             }
 
             SetCurrentLevelData();
-            
         }
-        
 
         public void GenerateLevelData()
         {
@@ -55,7 +56,6 @@ namespace Runtime.Helpers
 
             gridManager.Initialize(Width, Height, spaceModifier);
             itemsParentObject = new GameObject("LevelParent");
-           
 
             for (int x = 0; x < Width; x++)
             {
@@ -65,7 +65,7 @@ namespace Runtime.Helpers
                     if (gridCell.isOccupied && gridCell.gameColor != GameColor.None)
                     {
                         Vector3 spawnPosition = GridSpaceToWorldSpace(x, y);
-                        MonoBehaviour item = Instantiate(itemPrefab.gamePrefab[0].prefab, spawnPosition + new Vector3(0,0.25f,0), Quaternion.identity, itemsParentObject.transform);
+                        MonoBehaviour item = Instantiate(itemPrefab.gamePrefab[(int)itemSize].prefab, spawnPosition + new Vector3(0, 0.25f, 0), Quaternion.identity, itemsParentObject.transform);
                         item.GetComponent<Item>().Init(new Vector2Int(x, y), gridCell.gameColor, gridManager);
                     }
                 }
@@ -123,11 +123,37 @@ namespace Runtime.Helpers
 
         public void ToggleGridOccupancy(int x, int y)
         {
-            GridData grid = _currentLevelData.GetGrid(x, y);
-            grid.isOccupied = !grid.isOccupied;
-            _currentLevelData.SetGrid(x, y, grid);
+            Vector2Int[] offsets = GetOffsetsForItemSizeAndRotation(itemSize, itemRotation);
+            foreach (var offset in offsets)
+            {
+                int targetX = x + offset.x;
+                int targetY = y + offset.y;
+                if (targetX >= 0 && targetX < Width && targetY >= 0 && targetY < Height)
+                {
+                    GridData grid = _currentLevelData.GetGrid(targetX, targetY);
+                    grid.isOccupied = !grid.isOccupied;
+                    grid.gameColor = gameColor;
+                    _currentLevelData.SetGrid(targetX, targetY, grid);
+                }
+            }
         }
 
+       private Vector2Int[] GetOffsetsForItemSizeAndRotation(ItemSize size, Vector2Int rotation)
+{
+    switch (size)
+    {
+        case ItemSize.OneByOne:
+            return new[] { new Vector2Int(0, 0) };
+        case ItemSize.TwoByTwo:
+            // Shape: L
+            return new[] { new Vector2Int(0, 0), new Vector2Int(1, 0), new Vector2Int(0, 1) };
+        case ItemSize.ThreeByTwo:
+            // Shape: .l.
+            return new[] { new Vector2Int(0, 0), new Vector2Int(1, 0), new Vector2Int(2, 0), new Vector2Int(1, 1) };
+        default:
+            return new[] { new Vector2Int(0, 0) };
+    }
+}
         public LevelData GetCurrentLevelData()
         {
             return _currentLevelData;
@@ -210,6 +236,19 @@ namespace Runtime.Helpers
             GridData grid = _currentLevelData.GetGrid(x, y);
             grid.gameColor = gameColor;
             _currentLevelData.SetGrid(x, y, grid);
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (_currentLevelData == null) return;
+
+            Gizmos.color = Color.red;
+            Vector2Int[] offsets = GetOffsetsForItemSizeAndRotation(itemSize, itemRotation);
+            foreach (var offset in offsets)
+            {
+                Vector3 worldPos = GridSpaceToWorldSpace(offset.x, offset.y);
+                Gizmos.DrawWireCube(worldPos, new Vector3(gridSize, 0.1f, gridSize));
+            }
         }
     }
 }
