@@ -41,22 +41,22 @@ namespace Runtime.Entities
 
         private bool CanMove(Vector3 direction)
         {
-            Vector3 rightOffset = new Vector3(1, 0, 0) * 0.48f;
-            Vector3 upOffset = new Vector3(0, 0, 1) * 0.48f;
+            Vector3 rightOffset = new Vector3(0, 0, 1) * 0.48f;
+            Vector3 upOffset = new Vector3(1, 0, 0) * 0.48f;
 
             Vector3[] raycastOrigins = new Vector3[3];
 
             if (Mathf.Abs(direction.x) > 0)
             {
                 raycastOrigins[0] = transform.position; // Merkez
-                raycastOrigins[1] = transform.position + upOffset; // Üst
-                raycastOrigins[2] = transform.position - upOffset; // Alt
+                raycastOrigins[1] = transform.position + rightOffset; // Üst
+                raycastOrigins[2] = transform.position - rightOffset; // Alt
             }
             else if (Mathf.Abs(direction.z) > 0)
             {
                 raycastOrigins[0] = transform.position; // Merkez
-                raycastOrigins[1] = transform.position + rightOffset; // Sağ
-                raycastOrigins[2] = transform.position - rightOffset; // Sol
+                raycastOrigins[1] = transform.position + upOffset; // Sağ
+                raycastOrigins[2] = transform.position - upOffset; // Sol
             }
 
             foreach (var origin in raycastOrigins)

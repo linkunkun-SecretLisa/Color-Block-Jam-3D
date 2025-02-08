@@ -4,14 +4,14 @@ using UnityEngine;
 using Runtime.Entities;
 using Runtime.Data.ValueObject;
 using Runtime.Enums;
+using Runtime.Extensions;
 
 namespace Runtime.Managers
 {
-    public class GridManager : MonoBehaviour
+    public class GridManager : SingletonMonoBehaviour<GridManager>
     {
         [Header("Grid Settings Only Debug Dont Change")]
         private int Width;
-
         private int Height;
         private float SpaceModifier;
 

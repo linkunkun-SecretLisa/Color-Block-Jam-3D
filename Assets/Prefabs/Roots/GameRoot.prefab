@@ -197,6 +197,7 @@ Transform:
   - {fileID: 3955734859078629403}
   - {fileID: 5061573770044814841}
   - {fileID: 1359899341481402301}
+  - {fileID: 1117669308723098813}
   - {fileID: 93229993422879444}
   - {fileID: 536808083933914814}
   - {fileID: 2771241424544535754}
@@ -282,10 +283,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   sphereCastRadius: 0.1
-  gridManager: {fileID: 6243831926673530150}
-  selectedItem: {fileID: 0}
+  movementManager: {fileID: 0}
   isInputBlocked: 0
-  moveSpeed: 10
 --- !u!1 &1897738166517254852
 GameObject:
   m_ObjectHideFlags: 0
@@ -935,6 +934,52 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: faf42f03afd840cab099b01eeb445c7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &5257780610140205635
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1117669308723098813}
+  - component: {fileID: 8742531158841984327}
+  m_Layer: 0
+  m_Name: MovementManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1117669308723098813
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5257780610140205635}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 1562931937873758865}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8742531158841984327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5257780610140205635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4693ef9bf26644e592bb1c007b717084, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridManager: {fileID: 6243831926673530150}
+  moveSpeed: 10
 --- !u!1 &5896391002659290929
 GameObject:
   m_ObjectHideFlags: 0
@@ -1222,7 +1267,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cellPrefab: {fileID: 6721011999477111995, guid: 33fcd3d500aff304d851ba3d688d87d2,
     type: 3}
+  ObstaclePrefab: {fileID: 3184186012829529340, guid: f3c3bfb6b96837346adc38dc241350ee,
+    type: 3}
   cellParent: {fileID: 0}
+  obstacleParent: {fileID: 0}
 --- !u!1 &6975015598365083410
 GameObject:
   m_ObjectHideFlags: 0
