@@ -22,9 +22,6 @@ namespace Runtime.Managers
         private List<Item> itemsList = new List<Item>();
         private List<Cell> cells = new List<Cell>();
 
-        private void Start()
-        {
-        }
 
         public void Initialize(int width, int height, float spaceModifier)
         {
@@ -100,7 +97,7 @@ namespace Runtime.Managers
 
                     if (gridData.isOccupied && gridData.gameColor != GameColor.None)
                     {
-                        cell.Init(new Vector2Int(x, y), gridData.gameColor, this);
+                        cell.Init(new Vector2Int(x, y), this);
                     }
                 }
             }
@@ -150,7 +147,7 @@ namespace Runtime.Managers
         {
             return cells;
         }
-
+        
         public Vector3 GridSpaceToWorldSpace(Vector2Int gridPosition)
         {
             return new Vector3(gridPosition.x * SpaceModifier, 0, gridPosition.y * SpaceModifier);

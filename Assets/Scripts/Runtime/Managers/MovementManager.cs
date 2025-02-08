@@ -65,7 +65,7 @@ namespace Runtime.Managers
                 Vector3 snapPosition = GridManager.Instance.GridSpaceToWorldSpace(gridPosition);
                 snapPosition.y = selectedItem.transform.position.y;
                 selectedItem.transform.position = snapPosition;
-                selectedItem.OnDeselected();
+                selectedItem.OnDeselected(gridPosition);
                 selectedItem = null;
             }
         }
