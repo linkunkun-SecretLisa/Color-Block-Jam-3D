@@ -26,13 +26,12 @@ namespace Runtime.Entities
 
         public void OnSelected()
         {
-            
             Renderer.material.SetFloat("_OutlineWidth", 5f);
         }
-        
+
         public void OnDeselected()
         {
-            Renderer.material.SetFloat("_OutlineWidth", 0.0f); 
+            Renderer.material.SetFloat("_OutlineWidth", 0.0f);
         }
 
         private void ApplyColor()
@@ -40,16 +39,38 @@ namespace Runtime.Entities
             Renderer.sharedMaterial = colorData.gameColorsData[(int)itemColor].materialColor;
         }
 
-        public bool CanMove(Vector3 direction)
+        private bool CanMove(Vector3 direction)
         {
-            RaycastHit hit;
-            if (Physics.Raycast(transform.position, direction, out hit, raycastDistance, obstacleLayerMask))
+            Vector3 rightOffset = new Vector3(1, 0, 0) * 0.48f;
+            Vector3 upOffset = new Vector3(0, 0, 1) * 0.48f;
+
+            Vector3[] raycastOrigins = new Vector3[3];
+
+            if (Mathf.Abs(direction.x) > 0)
             {
-                return hit.transform == transform;
+                raycastOrigins[0] = transform.position; // Merkez
+                raycastOrigins[1] = transform.position + upOffset; // Üst
+                raycastOrigins[2] = transform.position - upOffset; // Alt
+            }
+            else if (Mathf.Abs(direction.z) > 0)
+            {
+                raycastOrigins[0] = transform.position; // Merkez
+                raycastOrigins[1] = transform.position + rightOffset; // Sağ
+                raycastOrigins[2] = transform.position - rightOffset; // Sol
+            }
+
+            foreach (var origin in raycastOrigins)
+            {
+                Debug.DrawRay(origin, direction * raycastDistance, Color.red);
+                if (Physics.Raycast(origin, direction, out RaycastHit hit, raycastDistance, obstacleLayerMask))
+                {
+                    return false;
+                }
             }
 
             return true;
         }
+
 
         public bool CanMoveInDirection(Vector3 direction)
         {
@@ -77,20 +98,6 @@ namespace Runtime.Entities
             }
 
             return isCanMoveX && isCanMoveZ;
-        }
-
-        private void Update()
-        {
-            DrawRaycasts();
-        }
-
-        private void DrawRaycasts()
-        {
-            Vector3[] directions = { Vector3.forward, Vector3.back, Vector3.left, Vector3.right };
-            foreach (var direction in directions)
-            {
-                Debug.DrawRay(transform.position, direction * raycastDistance, Color.red);
-            }
         }
     }
 }
