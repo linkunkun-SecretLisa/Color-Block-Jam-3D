@@ -8,13 +8,9 @@ namespace Runtime.Entities
     public class Item : MonoBehaviour
     {
         public ItemChild[] childItems;
-
         public GameColor itemColor;
-
-        // public ItemSize itemSize;
         public Renderer Renderer;
         public CD_GameColor colorData;
-
 
         public void Init(Vector2Int gridPosition, GameColor gameColor, GridManager gridManager)
         {
@@ -22,11 +18,16 @@ namespace Runtime.Entities
             itemColor = gameColor;
             gridManager.AddItem(this);
             ApplyColor();
+
+       
         }
 
         public void SetChildsGridPosition(Vector2Int gridPosition)
         {
-            childItems[0].SetGridPosition(gridPosition);
+            foreach (var child in childItems)
+            {
+                child.SetGridPosition(gridPosition);
+            }
         }
 
         public void OnSelected()
@@ -40,25 +41,27 @@ namespace Runtime.Entities
             SetChildsGridPosition(gridPos);
         }
 
-        private void ApplyColor()
+        public void ApplyColor()
         {
             Renderer.sharedMaterial = colorData.gameColorsData[(int)itemColor].materialColor;
         }
-
+        
         public bool CanChildsMoveInXZ(Vector3 targetPosition, out bool canMoveX, out bool canMoveZ)
         {
-            canMoveX = true;
-            canMoveZ = true;
-            foreach (var item in childItems)
+            bool allCanMoveX = true;
+            bool allCanMoveZ = true;
+
+            foreach (var child in childItems)
             {
-                if (!item.CanMoveInXZ(targetPosition, out bool isCanMoveX, out bool isCanMoveZ))
-                {
-                    canMoveX = isCanMoveX;
-                    canMoveZ = isCanMoveZ;
-                    return false;
-                }
+                bool childCanMoveX, childCanMoveZ;
+                child.CanMoveInXZ(targetPosition,transform, out childCanMoveX, out childCanMoveZ);
+                allCanMoveX &= childCanMoveX;
+                allCanMoveZ &= childCanMoveZ;
             }
-            return true;
+
+            canMoveX = allCanMoveX;
+            canMoveZ = allCanMoveZ;
+            return canMoveX && canMoveZ;
         }
     }
 }

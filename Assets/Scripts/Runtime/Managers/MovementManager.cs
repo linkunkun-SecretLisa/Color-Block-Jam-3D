@@ -36,15 +36,19 @@ namespace Runtime.Managers
                     intendedPosition.y = _selectedItem.transform.position.y;
 
                     Vector3 delta = intendedPosition - _selectedItem.transform.position;
+
+
                     Vector3 allowedDelta = Vector3.zero;
                     bool canMoveX, canMoveZ;
 
-                    if (_selectedItem.CanChildsMoveInXZ(_selectedItem.transform.position + new Vector3(delta.x, 0, 0), out canMoveX, out canMoveZ))
+                    if (_selectedItem.CanChildsMoveInXZ(_selectedItem.transform.position + new Vector3(delta.x, 0, 0),
+                            out canMoveX, out canMoveZ))
                     {
                         allowedDelta.x = canMoveX ? delta.x : 0;
                     }
 
-                    if (_selectedItem.CanChildsMoveInXZ(_selectedItem.transform.position + new Vector3(0, 0, delta.z), out canMoveX, out canMoveZ))
+                    if (_selectedItem.CanChildsMoveInXZ(_selectedItem.transform.position + new Vector3(0, 0, delta.z),
+                            out canMoveX, out canMoveZ))
                     {
                         allowedDelta.z = canMoveZ ? delta.z : 0;
                     }
@@ -52,7 +56,8 @@ namespace Runtime.Managers
                     Vector3 targetPosition = _selectedItem.transform.position + allowedDelta;
                     targetPosition.y = _selectedItem.transform.position.y;
 
-                    _selectedItem.transform.position = Vector3.Lerp(_selectedItem.transform.position, targetPosition, Time.deltaTime * moveSpeed);
+                    _selectedItem.transform.position = Vector3.Lerp(_selectedItem.transform.position, targetPosition,
+                        Time.deltaTime * moveSpeed);
                 }
             }
         }

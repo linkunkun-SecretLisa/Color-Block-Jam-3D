@@ -13,10 +13,11 @@ namespace Runtime.Entities
             GridPosition = gridPosition;
         }
 
-        public bool CanMoveInXZ(Vector3 targetPosition, out bool isCanMoveX, out bool isCanMoveZ)
+        public bool CanMoveInXZ(Vector3 targetPosition, Transform directionOrigin, out bool isCanMoveX,
+            out bool isCanMoveZ)
         {
-            Vector3 currentPos = transform.position;
-            Vector3 delta = targetPosition - currentPos;
+            Vector3 originPos = directionOrigin.position;
+            Vector3 delta = targetPosition - originPos;
 
             isCanMoveX = true;
             isCanMoveZ = true;
@@ -35,6 +36,7 @@ namespace Runtime.Entities
 
             return isCanMoveX && isCanMoveZ;
         }
+
 
         public bool CanMoveInAllDirections(Vector3 direction)
         {
@@ -61,28 +63,15 @@ namespace Runtime.Entities
                 Debug.DrawRay(origin, direction * raycastDistance, Color.red);
                 if (Physics.Raycast(origin, direction, out RaycastHit hit, raycastDistance, obstacleLayerMask))
                 {
-                    if (hit.transform != transform && hit.transform.parent != transform.parent)
+                    if (hit.transform != transform.parent)
                     {
+                        Debug.Log(hit.transform.name);
                         return false;
                     }
                 }
             }
 
             return true;
-        }
-
-        private void Update()
-        {
-            DrawAllRaycasts();
-        }
-
-        private void DrawAllRaycasts()
-        {
-            Vector3[] directions = { Vector3.forward, Vector3.back, Vector3.left, Vector3.right };
-            foreach (var direction in directions)
-            {
-                CanMoveInAllDirections(direction);
-            }
         }
     }
 }
