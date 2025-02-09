@@ -7,7 +7,7 @@ namespace Runtime.Managers
     public class MovementManager : SingletonMonoBehaviour<MovementManager>
     {
         [SerializeField] private float moveSpeed = 10f;
-
+        [SerializeField] private GridManager gridManager;
         private Item _selectedItem;
         private Vector3 _initialTouchWorldPosition;
         private Vector3 _touchOffset;
@@ -66,15 +66,15 @@ namespace Runtime.Managers
         {
             if (_selectedItem != null)
             {
-                Vector2Int gridPosition = GridManager.Instance.WorldSpaceToGridSpace(_selectedItem.transform.position);
-                Vector3 snapPosition = GridManager.Instance.GridSpaceToWorldSpace(gridPosition);
+                Vector2Int gridPosition = gridManager.WorldSpaceToGridSpace(_selectedItem.transform.position);
+                Vector3 snapPosition = gridManager.GridSpaceToWorldSpace(gridPosition);
 
                 var selectedItemTransform = _selectedItem.transform;
                 snapPosition.y = selectedItemTransform.position.y;
                 selectedItemTransform.position = snapPosition;
                 _selectedItem.OnDeselected(gridPosition);
                 _selectedItem = null;
-                GridManager.Instance.UpdateAllCellOccupied();
+                gridManager.UpdateAllCellOccupied();
             }
         }
     }

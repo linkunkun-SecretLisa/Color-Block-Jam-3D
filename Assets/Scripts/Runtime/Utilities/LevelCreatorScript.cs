@@ -50,9 +50,9 @@ namespace Runtime.Utilities
             if (itemsParentObject != null)
             {
                 DestroyImmediate(itemsParentObject);
+                gridManager.ClearItems();
             }
-
-            // Level creation now solely happens here.
+            
             gridManager.Initialize(Width, Height, spaceModifier);
             itemsParentObject = new GameObject("LevelParent");
 

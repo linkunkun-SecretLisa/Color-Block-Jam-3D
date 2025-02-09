@@ -1,7 +1,3 @@
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Runtime.Entities;
@@ -9,24 +5,30 @@ using Runtime.Data.ValueObject;
 using Runtime.Enums;
 using Runtime.Utilities;
 using Unity.VisualScripting;
-using UnityEngine.Serialization;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Runtime.Managers
 {
-    public class GridManager : SingletonMonoBehaviour<GridManager>
+    public class GridManager : MonoBehaviour
     {
-        [Header("Grid Settings")]
-        private int _width;
-        private int _height;
-        private float _spaceModifier;
+        [Header("Grid Settings")] public int _width;
+        public int _height;
+        public float _spaceModifier;
 
         [SerializeField] private GameObject cellParent;
         [SerializeField] private GameObject cellPrefab;
         [SerializeField] private GameObject obstacleParent;
         [SerializeField] private GameObject obstaclePrefab;
-        private readonly List<Item> _itemsList = new List<Item>();
-        private readonly List<Cell> _cells = new List<Cell>();
+        [SerializeField] private List<Item> _itemsList = new List<Item>();
+        [SerializeField] private List<Cell> _cells = new List<Cell>();
 
+        private void OnEnable()
+        {
+            if (_cells == null) _cells = new List<Cell>();
+            if (_itemsList == null) _itemsList = new List<Item>();
+        }
 
         public void Initialize(int width, int height, float spaceModifier)
         {
@@ -35,10 +37,15 @@ namespace Runtime.Managers
             _spaceModifier = spaceModifier;
 
             CreateGrid();
+
+#if UNITY_EDITOR
+            EditorUtility.SetDirty(this);
+#endif
         }
 
         #region Level Creation
 
+#if UNITY_EDITOR
         private void CreateGrid()
         {
             ClearCells();
@@ -54,9 +61,10 @@ namespace Runtime.Managers
                     cell.name = $"Cell {x}x{y}";
                     cell.Init(new Vector2Int(x, y), false);
                     _cells.Add(cell);
+
+                    EditorUtility.SetDirty(cell.gameObject);
                 }
             }
-
 
             CreateObstaclesAroundGrid();
         }
@@ -83,6 +91,8 @@ namespace Runtime.Managers
                             GameObject obstacle = (GameObject)PrefabUtility.InstantiatePrefab(obstaclePrefab, obstacleParent.transform);
                             obstacle.transform.position = position;
                             obstacle.transform.rotation = rotation;
+
+                            EditorUtility.SetDirty(obstacle);
                         }
                     }
                     else if ((y == -1 || y == _height) && (x >= 0 && x < _width))
@@ -94,11 +104,14 @@ namespace Runtime.Managers
                             GameObject obstacle = (GameObject)PrefabUtility.InstantiatePrefab(obstaclePrefab, obstacleParent.transform);
                             obstacle.transform.position = position;
                             obstacle.transform.rotation = rotation;
+
+                            EditorUtility.SetDirty(obstacle);
                         }
                     }
                 }
             }
         }
+#endif
 
         #endregion
 
@@ -119,6 +132,10 @@ namespace Runtime.Managers
                     {
                         cell.Init(new Vector2Int(x, y), false);
                     }
+
+#if UNITY_EDITOR
+                    EditorUtility.SetDirty(cell.gameObject);
+#endif
                 }
             }
         }
@@ -138,6 +155,10 @@ namespace Runtime.Managers
         public void AddItem(Item item)
         {
             _itemsList.Add(item);
+
+#if UNITY_EDITOR
+            EditorUtility.SetDirty(item.gameObject);
+#endif
         }
 
         public void UpdateAllCellOccupied()
@@ -154,6 +175,10 @@ namespace Runtime.Managers
                     Vector2Int gridPosition = WorldSpaceToGridSpace(childItem.transform.position);
                     Cell cell = _cells[gridPosition.x * _width + gridPosition.y];
                     cell.SetOccupied(true);
+
+#if UNITY_EDITOR
+                    EditorUtility.SetDirty(cell.gameObject);
+#endif
                 }
             }
         }
@@ -168,6 +193,10 @@ namespace Runtime.Managers
             if (_itemsList.Contains(item))
             {
                 _itemsList.Remove(item);
+
+#if UNITY_EDITOR
+                EditorUtility.SetDirty(item.gameObject);
+#endif
             }
         }
 

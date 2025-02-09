@@ -13,7 +13,7 @@ namespace Runtime.Entities
 
         public void Init(Vector2Int gridPosition, GameColor gameColor, GridManager gridManager)
         {
-            SetChildsGridPosition(gridPosition);
+            // SetChildsGridPosition(gridPosition);
             itemColor = gameColor;
             gridManager.AddItem(this);
             ApplyChildColor();
@@ -23,9 +23,7 @@ namespace Runtime.Entities
 
         public void SetChildsGridPosition(Vector2Int gridPosition)
         {
-            
-                childItems[0].SetGridPosition(gridPosition);
-            
+          // childItems[0].SetGridPosition(gridPosition);
         }
 
         public void OnSelected()
