@@ -1,6 +1,6 @@
 using UnityEngine;
 using DG.Tweening;
-using Runtime.Extensions;
+using Runtime.Utilities;
 using TMPro;
 using UnityEngine.UI;
 

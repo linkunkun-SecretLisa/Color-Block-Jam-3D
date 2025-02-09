@@ -1,6 +1,6 @@
 using System;
 using Runtime.Enums;
-using Runtime.Extensions;
+using Runtime.Utilities;
 using UnityEngine;
 
 namespace Runtime.Managers

@@ -1,6 +1,5 @@
 using Runtime.Data.ValueObject;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Runtime.Data.UnityObject
 {

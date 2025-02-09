@@ -1,8 +1,8 @@
 using Cysharp.Threading.Tasks;
 using Runtime.Enums;
-using Runtime.Extensions;
 using UnityEngine;
 using DG.Tweening;
+using Runtime.Utilities;
 
 namespace Runtime.Managers
 {

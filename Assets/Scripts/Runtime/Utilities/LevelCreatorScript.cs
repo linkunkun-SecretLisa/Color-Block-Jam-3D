@@ -1,15 +1,14 @@
-using System;
 using Runtime.Data.UnityObject;
 using Runtime.Data.ValueObject;
 using Runtime.Entities;
 using Runtime.Enums;
 using Runtime.Managers;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using UnityEngine;
 
-namespace Runtime.Helpers
+namespace Runtime.Utilities
 {
     [ExecuteInEditMode]
     public class LevelCreatorScript : MonoBehaviour

@@ -1,17 +1,18 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Runtime.Entities
 {
     public class ItemChild : MonoBehaviour
     {
-        public Vector2Int GridPosition;
+        public Vector2Int gridPosition;
         [SerializeField] private float raycastDistance = 0.5f;
         [SerializeField] private LayerMask obstacleLayerMask;
         [SerializeField] private Renderer renderer;
 
         public void SetGridPosition(Vector2Int gridPosition)
         {
-            GridPosition = gridPosition;
+            this.gridPosition = gridPosition;
         }
 
         public void OnSelected()

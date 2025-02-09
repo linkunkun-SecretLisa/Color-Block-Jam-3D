@@ -1,24 +1,24 @@
-using Runtime.Extensions;
+using Runtime.Utilities;
 using UnityEngine;  
 
 namespace Runtime.Managers
 {
     public class CurrencyManager : SingletonMonoBehaviour<CurrencyManager>
     {
-        private int coinAmount;
+        private int _coinAmount;
         
-        public int GetCoinAmount() => coinAmount;
+        public int GetCoinAmount() => _coinAmount;
         protected override void Awake()
         {
             base.Awake();
             
-            coinAmount = PlayerPrefs.GetInt(PlayerPrefsKeys.CoinsInt);
+            _coinAmount = PlayerPrefs.GetInt(PlayerPrefsKeys.CoinsInt);
         }
         
         public void IncressCoinAmount()
         {
-            coinAmount += 100;
-            PlayerPrefs.SetInt(PlayerPrefsKeys.CoinsInt, coinAmount);
+            _coinAmount += 100;
+            PlayerPrefs.SetInt(PlayerPrefsKeys.CoinsInt, _coinAmount);
             UIManager.Instance.UpdateCoinText();
         }
     }
