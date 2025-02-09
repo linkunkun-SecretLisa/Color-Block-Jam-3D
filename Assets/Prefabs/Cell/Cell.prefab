@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2820125746646665586}
   - component: {fileID: 5703203509210821847}
   m_Layer: 0
-  m_Name: 63d3fed16893497d4b75525c_R4VPCAXCF_eD8RMvLMVmSNpyclIZcbE2n7TYzHWcS61ld57hzVf9kgYCVk0AVFAkj5mXeIn2_YPX6twv_057Ek96_F3qv28W1O5WuyIXajljI_cUk7uku4Yj-Nn2bUri0sxnrPWupLHINlfi9VM3iX24istJ-Zy_TSM7D9c_DE-m2HZMyJcHE
+  m_Name: GridSpriteRenderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -203,4 +203,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be974c7bdb684874d935de657c106836, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorData: {fileID: 11400000, guid: e65212faa0de42942a7ece2cf3e7d475, type: 2}

@@ -7,14 +7,29 @@ namespace Runtime.Entities
         public Vector2Int GridPosition;
         [SerializeField] private float raycastDistance = 0.5f;
         [SerializeField] private LayerMask obstacleLayerMask;
+        [SerializeField] private Renderer renderer;
 
         public void SetGridPosition(Vector2Int gridPosition)
         {
             GridPosition = gridPosition;
         }
 
-        public bool CanMoveInXZ(Vector3 targetPosition, Transform directionOrigin, out bool isCanMoveX,
-            out bool isCanMoveZ)
+        public void OnSelected()
+        {
+            renderer.material.SetFloat("_OutlineWidth", 5f);
+        }
+        
+        public void OnDeselected()
+        {
+            renderer.material.SetFloat("_OutlineWidth", 0.0f);
+        }
+        
+        public void ApplyColor(Material material)
+        {
+            renderer.sharedMaterial = material;
+        }
+        
+        public bool CanMoveInXZ(Vector3 targetPosition, Transform directionOrigin, out bool isCanMoveX, out bool isCanMoveZ)
         {
             Vector3 originPos = directionOrigin.position;
             Vector3 delta = targetPosition - originPos;
@@ -65,7 +80,6 @@ namespace Runtime.Entities
                 {
                     if (hit.transform != transform.parent)
                     {
-                        Debug.Log(hit.transform.name);
                         return false;
                     }
                 }

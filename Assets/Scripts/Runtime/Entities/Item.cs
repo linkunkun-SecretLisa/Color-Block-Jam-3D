@@ -9,7 +9,6 @@ namespace Runtime.Entities
     {
         public ItemChild[] childItems;
         public GameColor itemColor;
-        public Renderer Renderer;
         public CD_GameColor colorData;
 
         public void Init(Vector2Int gridPosition, GameColor gameColor, GridManager gridManager)
@@ -17,33 +16,41 @@ namespace Runtime.Entities
             SetChildsGridPosition(gridPosition);
             itemColor = gameColor;
             gridManager.AddItem(this);
-            ApplyColor();
+            ApplyChildColor();
 
        
         }
 
         public void SetChildsGridPosition(Vector2Int gridPosition)
         {
-            foreach (var child in childItems)
-            {
-                child.SetGridPosition(gridPosition);
-            }
+            
+                childItems[0].SetGridPosition(gridPosition);
+            
         }
 
         public void OnSelected()
         {
-            Renderer.material.SetFloat("_OutlineWidth", 5f);
+            foreach (var child in childItems)
+            {
+                child.OnSelected();
+            }
         }
 
         public void OnDeselected(Vector2Int gridPos)
         {
-            Renderer.material.SetFloat("_OutlineWidth", 0.0f);
+            foreach (var child in childItems)
+            {
+                child.OnDeselected();
+            }
             SetChildsGridPosition(gridPos);
         }
 
-        public void ApplyColor()
+        public void ApplyChildColor()
         {
-            Renderer.sharedMaterial = colorData.gameColorsData[(int)itemColor].materialColor;
+            foreach (var child in childItems)
+            {
+                child.ApplyColor(colorData.gameColorsData[(int)itemColor].materialColor);
+            }
         }
         
         public bool CanChildsMoveInXZ(Vector3 targetPosition, out bool canMoveX, out bool canMoveZ)

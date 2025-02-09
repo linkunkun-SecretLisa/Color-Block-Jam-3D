@@ -13,7 +13,54 @@ MonoBehaviour:
   m_Name: Level 1
   m_EditorClassIdentifier: 
   levelData:
-    levelNumber: 0
-    Width: 2
-    Height: 2
-    Grids: []
+    Width: 4
+    Height: 4
+    Grids:
+    - isOccupied: 0
+      gameColor: 0
+      position: {x: 0, y: 0}
+    - isOccupied: 0
+      gameColor: 0
+      position: {x: 1, y: 0}
+    - isOccupied: 1
+      gameColor: 1
+      position: {x: 2, y: 0}
+    - isOccupied: 1
+      gameColor: 1
+      position: {x: 3, y: 0}
+    - isOccupied: 0
+      gameColor: 0
+      position: {x: 0, y: 1}
+    - isOccupied: 0
+      gameColor: 0
+      position: {x: 1, y: 1}
+    - isOccupied: 0
+      gameColor: 0
+      position: {x: 2, y: 1}
+    - isOccupied: 1
+      gameColor: 1
+      position: {x: 3, y: 1}
+    - isOccupied: 1
+      gameColor: 1
+      position: {x: 0, y: 2}
+    - isOccupied: 0
+      gameColor: 0
+      position: {x: 1, y: 2}
+    - isOccupied: 0
+      gameColor: 0
+      position: {x: 2, y: 2}
+    - isOccupied: 0
+      gameColor: 0
+      position: {x: 3, y: 2}
+    - isOccupied: 1
+      gameColor: 1
+      position: {x: 0, y: 3}
+    - isOccupied: 0
+      gameColor: 0
+      position: {x: 1, y: 3}
+    - isOccupied: 0
+      gameColor: 0
+      position: {x: 2, y: 3}
+    - isOccupied: 0
+      gameColor: 0
+      position: {x: 3, y: 3}

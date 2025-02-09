@@ -4,6 +4,9 @@ using Runtime.Data.ValueObject;
 using Runtime.Entities;
 using Runtime.Enums;
 using Runtime.Managers;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace Runtime.Helpers
@@ -17,17 +20,14 @@ namespace Runtime.Helpers
         [Range(0f, 100f)] public float spaceModifier = 50f;
         [Range(50f, 100f)] public float gridSize = 50f;
 
-        [Header("References")] 
+        [Header("References")]
         public CD_LevelData LevelData;
         public CD_GameColor colorData;
         public CD_GamePrefab itemPrefab;
         public GameObject itemsParentObject;
         public GridManager gridManager;
-
-        public ItemSize itemSize; // item sizes == 1x1, 2x2, 3x2 and when we select one of them, we can place the item on the grid
-        public Vector2Int itemRotation; // only x and z axis rotation
+        public ItemSize itemSize; // item sizes like 1x1, 2x2, 3x2; when one is selected, the item can be placed on the grid
         public GameColor gameColor;
-
         private LevelData _currentLevelData;
 
         private void OnEnable()
@@ -53,8 +53,7 @@ namespace Runtime.Helpers
                 DestroyImmediate(itemsParentObject);
             }
 
-            gridManager.ClearItems();
-
+            // Level creation now solely happens here.
             gridManager.Initialize(Width, Height, spaceModifier);
             itemsParentObject = new GameObject("LevelParent");
 
@@ -63,16 +62,58 @@ namespace Runtime.Helpers
                 for (int y = 0; y < Height; y++)
                 {
                     GridData gridCell = LevelData.levelData.GetGrid(x, y);
-                    if (gridCell.isOccupied && gridCell.gameColor != GameColor.None)
+                    if (gridCell.isOccupied && gridCell.gameColor != GameColor.None &&
+                        gridCell.ItemSize != ItemSize.None)
                     {
                         Vector3 spawnPosition = GridSpaceToWorldSpace(x, y);
-                        MonoBehaviour item = Instantiate(itemPrefab.gamePrefab[(int)itemSize].prefab, spawnPosition + new Vector3(0, 0.25f, 0), Quaternion.identity, itemsParentObject.transform);
-                        item.GetComponent<Item>().Init(new Vector2Int(x, y), gridCell.gameColor, gridManager);
+                        SpawnItem(gridCell, spawnPosition, x, y);
                     }
                 }
             }
+
             gridManager.UpdateCellData(LevelData.levelData);
             Debug.Log("Grid generated.");
+        }
+
+        private void SpawnItem(GridData gridCell, Vector3 spawnPosition, int x, int y)
+        {
+            if (gridCell.ItemSize == ItemSize.OneByOne)
+            {
+                MonoBehaviour item = (MonoBehaviour)PrefabUtility.InstantiatePrefab(
+                    itemPrefab.gamePrefab[(int)gridCell.ItemSize].prefab, itemsParentObject.transform);
+                item.transform.position = spawnPosition + new Vector3(0, 0.25f, 0);
+                item.GetComponent<Item>().Init(new Vector2Int(x, y), gridCell.gameColor, gridManager);
+            }
+
+            if (gridCell.ItemSize == ItemSize.TwoByTwo)
+            {
+                var gridcellPos = gridCell.position;
+                var left = LevelData.levelData.GetGrid(gridcellPos.x - 1, gridcellPos.y);
+                var up = LevelData.levelData.GetGrid(gridcellPos.x, gridcellPos.y + 1);
+
+                if ((gridCell.gameColor == up.gameColor) && (gridCell.gameColor == left.gameColor))
+                {
+                    MonoBehaviour item = (MonoBehaviour)PrefabUtility.InstantiatePrefab(
+                        itemPrefab.gamePrefab[(int)gridCell.ItemSize].prefab, itemsParentObject.transform);
+                    item.transform.position = spawnPosition + new Vector3(0, 0.25f, 0);
+                    item.GetComponent<Item>().Init(new Vector2Int(x, y), gridCell.gameColor, gridManager);
+                }
+            }
+
+            if (gridCell.ItemSize == ItemSize.ThreeByTwo)
+            {
+                var gridcellPos = gridCell.position;
+                var left = LevelData.levelData.GetGrid(gridcellPos.x - 1, gridcellPos.y);
+                var right = LevelData.levelData.GetGrid(gridcellPos.x + 1, gridcellPos.y);
+                var up = LevelData.levelData.GetGrid(gridcellPos.x, gridcellPos.y + 1);
+
+                if ((gridCell.gameColor == up.gameColor) && (gridCell.gameColor == left.gameColor) && (gridCell.gameColor == right.gameColor))
+                {
+                    MonoBehaviour item = (MonoBehaviour)PrefabUtility.InstantiatePrefab(itemPrefab.gamePrefab[(int)gridCell.ItemSize].prefab, itemsParentObject.transform);
+                    item.transform.position = spawnPosition + new Vector3(0, 0.25f, 0);
+                    item.GetComponent<Item>().Init(new Vector2Int(x, y), gridCell.gameColor, gridManager);
+                }
+            }
         }
 
         public Vector3 GridSpaceToWorldSpace(int x, int y)
@@ -103,7 +144,8 @@ namespace Runtime.Helpers
                         {
                             isOccupied = false,
                             gameColor = GameColor.None,
-                            position = new Vector2Int(x, y)
+                            position = new Vector2Int(x, y),
+                            ItemSize = ItemSize.None
                         };
                     }
                 }
@@ -124,7 +166,7 @@ namespace Runtime.Helpers
 
         public void ToggleGridOccupancy(int x, int y)
         {
-            Vector2Int[] offsets = GetOffsetsForItemSizeAndRotation(itemSize, itemRotation);
+            Vector2Int[] offsets = GetOffsetsForItemSizeAndRotation(itemSize);
             foreach (var offset in offsets)
             {
                 int targetX = x + offset.x;
@@ -134,27 +176,28 @@ namespace Runtime.Helpers
                     GridData grid = _currentLevelData.GetGrid(targetX, targetY);
                     grid.isOccupied = !grid.isOccupied;
                     grid.gameColor = gameColor;
+                    grid.ItemSize = itemSize;
                     _currentLevelData.SetGrid(targetX, targetY, grid);
                 }
             }
         }
 
-       private Vector2Int[] GetOffsetsForItemSizeAndRotation(ItemSize size, Vector2Int rotation)
-{
-    switch (size)
-    {
-        case ItemSize.OneByOne:
-            return new[] { new Vector2Int(0, 0) };
-        case ItemSize.TwoByTwo:
-            // Shape: L
-            return new[] { new Vector2Int(0, 0), new Vector2Int(1, 0), new Vector2Int(0, 1) };
-        case ItemSize.ThreeByTwo:
-            // Shape: .l.
-            return new[] { new Vector2Int(0, 0), new Vector2Int(1, 0), new Vector2Int(2, 0), new Vector2Int(1, 1) };
-        default:
-            return new[] { new Vector2Int(0, 0) };
-    }
-}
+        private Vector2Int[] GetOffsetsForItemSizeAndRotation(ItemSize size)
+        {
+            switch (size)
+            {
+                case ItemSize.OneByOne:
+                    return new[] { new Vector2Int(0, 0) };
+                case ItemSize.TwoByTwo:
+                    return new[] { new Vector2Int(0, 0), new Vector2Int(-1, 0), new Vector2Int(0, 1) };
+                case ItemSize.ThreeByTwo:
+                    return new[]
+                        { new Vector2Int(0, 0), new Vector2Int(1, 0), new Vector2Int(-1, 0), new Vector2Int(0, 1) };
+                default:
+                    return new[] { new Vector2Int(0, 0) };
+            }
+        }
+
         public LevelData GetCurrentLevelData()
         {
             return _currentLevelData;
@@ -203,7 +246,8 @@ namespace Runtime.Helpers
                     {
                         isOccupied = false,
                         gameColor = GameColor.None,
-                        position = new Vector2Int(x, y)
+                        position = new Vector2Int(x, y),
+                        ItemSize = ItemSize.None
                     };
                     LevelData.levelData.SetGrid(x, y, gridData);
                     _currentLevelData.SetGrid(x, y, gridData);
@@ -244,7 +288,7 @@ namespace Runtime.Helpers
             if (_currentLevelData == null) return;
 
             Gizmos.color = Color.red;
-            Vector2Int[] offsets = GetOffsetsForItemSizeAndRotation(itemSize, itemRotation);
+            Vector2Int[] offsets = GetOffsetsForItemSizeAndRotation(itemSize);
             foreach (var offset in offsets)
             {
                 Vector3 worldPos = GridSpaceToWorldSpace(offset.x, offset.y);

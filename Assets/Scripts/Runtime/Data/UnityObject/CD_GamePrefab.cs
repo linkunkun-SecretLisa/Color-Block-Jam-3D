@@ -1,4 +1,5 @@
 using Runtime.Data.ValueObject;
+using Runtime.Enums;
 using UnityEngine;
 
 namespace Runtime.Data.UnityObject
@@ -7,5 +8,18 @@ namespace Runtime.Data.UnityObject
     public class CD_GamePrefab : ScriptableObject
     {
         public GamePrefabData[] gamePrefab;
+
+        public MonoBehaviour GetPrefab(ItemSize itemSize)
+        {
+            foreach (var prefab in gamePrefab)
+            {
+                if (prefab.itemSize == itemSize)
+                {
+                    return prefab.prefab;
+                }
+            }
+
+            return null;
+        }
     }
 }
