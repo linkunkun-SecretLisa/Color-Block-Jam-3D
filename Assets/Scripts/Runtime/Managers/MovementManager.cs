@@ -56,8 +56,7 @@ namespace Runtime.Managers
                     Vector3 targetPosition = _selectedItem.transform.position + allowedDelta;
                     targetPosition.y = _selectedItem.transform.position.y;
 
-                    _selectedItem.transform.position = Vector3.Lerp(_selectedItem.transform.position, targetPosition,
-                        Time.deltaTime * moveSpeed);
+                    _selectedItem.transform.position = Vector3.Lerp(_selectedItem.transform.position, targetPosition, Time.deltaTime * moveSpeed);
                 }
             }
         }

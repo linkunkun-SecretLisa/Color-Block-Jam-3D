@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Runtime.Entities
 {
@@ -17,7 +16,7 @@ namespace Runtime.Entities
 
         public void OnSelected()
         {
-            renderer.material.SetFloat("_OutlineWidth", 5f);
+            renderer.material.SetFloat("_OutlineWidth", 2.5f);
         }
         
         public void OnDeselected()
@@ -52,7 +51,6 @@ namespace Runtime.Entities
 
             return isCanMoveX && isCanMoveZ;
         }
-
 
         public bool CanMoveInAllDirections(Vector3 direction)
         {

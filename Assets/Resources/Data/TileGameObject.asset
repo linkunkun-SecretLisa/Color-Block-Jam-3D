@@ -24,3 +24,6 @@ MonoBehaviour:
   - itemSize: 3
     prefab: {fileID: 3544145688998599726, guid: 909714bf36b6cd24e99c3ecd4e2647c9,
       type: 3}
+  - itemSize: 4
+    prefab: {fileID: 3544145688998599726, guid: 54d18f41a4e3ace47a6a18ec1a920a8d,
+      type: 3}

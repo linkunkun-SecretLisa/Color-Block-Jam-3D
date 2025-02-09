@@ -12,5 +12,8 @@ namespace Runtime.Enums
 
         [Sirenix.OdinInspector.LabelText("3x2")]
         ThreeByTwo,
+        
+        [Sirenix.OdinInspector.LabelText("3x3")]
+        ThreeByThree,
     }
 }
