@@ -18,18 +18,19 @@ namespace Runtime.Entities
         {
             renderer.material.SetFloat("_OutlineWidth", 2.5f);
         }
-        
+
         public void OnDeselected()
         {
             renderer.material.SetFloat("_OutlineWidth", 0.0f);
         }
-        
+
         public void ApplyColor(Material material)
         {
             renderer.sharedMaterial = material;
         }
-        
-        public bool CanMoveInXZ(Vector3 targetPosition, Transform directionOrigin, out bool isCanMoveX, out bool isCanMoveZ)
+
+        public bool CanMoveInXZ(Vector3 targetPosition, Transform directionOrigin, out bool isCanMoveX,
+            out bool isCanMoveZ)
         {
             Vector3 originPos = directionOrigin.position;
             Vector3 delta = targetPosition - originPos;

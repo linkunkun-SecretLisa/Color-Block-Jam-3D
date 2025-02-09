@@ -26,6 +26,7 @@ namespace Runtime.Managers
 
         public void UpdateMovement(Ray ray)
         {
+            // Physics.SyncTransforms(); solution tried but not worked
             if (_selectedItem != null)
             {
                 Plane plane = new Plane(Vector3.up, new Vector3(0, _selectedItem.transform.position.y, 0));
@@ -56,7 +57,8 @@ namespace Runtime.Managers
                     Vector3 targetPosition = _selectedItem.transform.position + allowedDelta;
                     targetPosition.y = _selectedItem.transform.position.y;
 
-                    _selectedItem.transform.position = Vector3.Lerp(_selectedItem.transform.position, targetPosition, Time.deltaTime * moveSpeed);
+                    _selectedItem.transform.position = Vector3.Lerp(_selectedItem.transform.position, targetPosition,
+                        Time.deltaTime * moveSpeed);
                 }
             }
         }
