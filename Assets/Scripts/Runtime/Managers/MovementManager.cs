@@ -12,6 +12,8 @@ namespace Runtime.Managers
         private Item selectedItem;
         private Vector3 initialTouchWorldPosition;
         private Vector3 touchOffset;
+        
+        
 
 
         public void StartMovement(Item item, Ray ray)
@@ -71,6 +73,8 @@ namespace Runtime.Managers
                 selectedItem = null;
                 gridManager.UpdateAllCellOccupied();
             }
+            
+
         }
 
 

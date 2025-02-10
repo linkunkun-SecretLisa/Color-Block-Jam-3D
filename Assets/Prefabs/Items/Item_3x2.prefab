@@ -146,7 +146,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85220c7c16fee164f9e74f020815fbc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridPosition: {x: 0, y: 0}
   raycastDistance: 0.5
   obstacleLayerMask:
     serializedVersion: 2
@@ -298,7 +297,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85220c7c16fee164f9e74f020815fbc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridPosition: {x: 0, y: 0}
   raycastDistance: 0.5
   obstacleLayerMask:
     serializedVersion: 2
@@ -450,7 +448,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85220c7c16fee164f9e74f020815fbc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridPosition: {x: 0, y: 0}
   raycastDistance: 0.5
   obstacleLayerMask:
     serializedVersion: 2
@@ -581,6 +578,9 @@ MonoBehaviour:
   - {fileID: 454012049175866326}
   - {fileID: 8066342521756453119}
   - {fileID: 4642288351128715128}
+  colliders:
+  - {fileID: 315368490053410250}
+  - {fileID: 6444058701801066709}
   itemColor: 1
   colorData: {fileID: 11400000, guid: e65212faa0de42942a7ece2cf3e7d475, type: 2}
   itemSize: 3
@@ -730,7 +730,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85220c7c16fee164f9e74f020815fbc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridPosition: {x: 0, y: 0}
   raycastDistance: 0.5
   obstacleLayerMask:
     serializedVersion: 2

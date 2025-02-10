@@ -13,7 +13,8 @@ namespace Runtime.Managers
 {
     public class GridManager : SingletonMonoBehaviour<GridManager>
     {
-        [Header("Grid Settings")] public int _width;
+        [Header("Grid Settings")]
+        public int _width;
         public int _height;
         public float _spaceModifier;
 
@@ -78,36 +79,50 @@ namespace Runtime.Managers
 
             obstacleParent = new GameObject("ObstacleParent");
 
+            // Iterate over the border region from x = -1 to _width, and y = -1 to _height.
             for (int x = -1; x <= _width; x++)
             {
                 for (int y = -1; y <= _height; y++)
                 {
-                    if ((x == -1 || x == _width) && (y >= 0 && y < _height))
-                    {
-                        if (y % Mathf.Max(1, _height / 4) == 0)
-                        {
-                            Vector3 position = GridSpaceToWorldSpace(new Vector2Int(x, y));
-                            Quaternion rotation = (x == -1) ? Quaternion.Euler(0, 90, 0) : Quaternion.Euler(0, -90, 0);
-                            GameObject obstacle = (GameObject)PrefabUtility.InstantiatePrefab(obstaclePrefab, obstacleParent.transform);
-                            obstacle.transform.position = position;
-                            obstacle.transform.rotation = rotation;
+                    // Skip internal cells and ensure only border cells are considered.
+                    if (x != -1 && x != _width && y != -1 && y != _height)
+                        continue;
 
-                            EditorUtility.SetDirty(obstacle);
-                        }
-                    }
-                    else if ((y == -1 || y == _height) && (x >= 0 && x < _width))
+                    // Skip the four corners.
+                    if ((x == -1 && y == -1) ||
+                        (x == -1 && y == _height) ||
+                        (x == _width && y == -1) ||
+                        (x == _width && y == _height))
                     {
-                        if (x % Mathf.Max(1, _width / 4) == 0)
-                        {
-                            Vector3 position = GridSpaceToWorldSpace(new Vector2Int(x, y));
-                            Quaternion rotation = (y == -1) ? Quaternion.Euler(0, 0, 0) : Quaternion.Euler(0, 180, 0);
-                            GameObject obstacle = (GameObject)PrefabUtility.InstantiatePrefab(obstaclePrefab, obstacleParent.transform);
-                            obstacle.transform.position = position;
-                            obstacle.transform.rotation = rotation;
-
-                            EditorUtility.SetDirty(obstacle);
-                        }
+                        continue;
                     }
+
+                    Vector3 position = GridSpaceToWorldSpace(new Vector2Int(x, y));
+                    Quaternion rotation = Quaternion.identity;
+
+                    // Determine rotation based on which edge this obstacle is on.
+                    if (x == -1 && y >= 0 && y < _height)
+                    {
+                        rotation = Quaternion.Euler(0, 90, 0);
+                    }
+                    else if (x == _width && y >= 0 && y < _height)
+                    {
+                        rotation = Quaternion.Euler(0, -90, 0);
+                    }
+                    else if (y == -1 && x >= 0 && x < _width)
+                    {
+                        rotation = Quaternion.Euler(0, 0, 0);
+                    }
+                    else if (y == _height && x >= 0 && x < _width)
+                    {
+                        rotation = Quaternion.Euler(0, 180, 0);
+                    }
+
+                    GameObject obstacle = (GameObject)PrefabUtility.InstantiatePrefab(obstaclePrefab, obstacleParent.transform);
+                    obstacle.transform.position = position;
+                    obstacle.transform.rotation = rotation;
+
+                    EditorUtility.SetDirty(obstacle);
                 }
             }
         }
@@ -122,7 +137,7 @@ namespace Runtime.Managers
                 for (int y = 0; y < _height; y++)
                 {
                     GridData gridData = levelData.GetGrid(x, y);
-                    Cell cell = _cells[x * _width + y];
+                    Cell cell = _cells[x * _height + y];
 
                     if (gridData.isOccupied && gridData.gameColor != GameColor.None)
                     {
@@ -173,7 +188,7 @@ namespace Runtime.Managers
                 foreach (var childItem in item.childItems)
                 {
                     Vector2Int gridPosition = WorldSpaceToGridSpace(childItem.transform.position);
-                    Cell cell = _cells[gridPosition.x * _width + gridPosition.y];
+                    Cell cell = _cells[gridPosition.x * _height + gridPosition.y];
                     cell.SetOccupied(true);
 
 #if UNITY_EDITOR
@@ -194,7 +209,6 @@ namespace Runtime.Managers
             {
                 _itemsList.Remove(item);
                 CheckItemCount();
-                
 
 #if UNITY_EDITOR
                 EditorUtility.SetDirty(item.gameObject);

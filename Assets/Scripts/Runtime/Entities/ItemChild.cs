@@ -1,5 +1,4 @@
 using Runtime.Utilities;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace Runtime.Entities
@@ -25,8 +24,7 @@ namespace Runtime.Entities
             renderer.sharedMaterial = material;
         }
 
-        public bool CanMoveInXZ(Vector3 targetPosition, Transform directionOrigin, out bool isCanMoveX,
-            out bool isCanMoveZ)
+        public bool CanMoveInXZ(Vector3 targetPosition, Transform directionOrigin, out bool isCanMoveX, out bool isCanMoveZ)
         {
             Vector3 originPos = directionOrigin.position;
             Vector3 delta = targetPosition - originPos;
@@ -71,7 +69,6 @@ namespace Runtime.Entities
 
             foreach (var origin in raycastOrigins)
             {
-                Debug.DrawRay(origin, direction * raycastDistance, Color.red);
                 if (Physics.Raycast(origin, direction, out RaycastHit hit, raycastDistance, obstacleLayerMask))
                 {
                     if (hit.transform != transform.parent)
@@ -87,30 +84,38 @@ namespace Runtime.Entities
         public bool IsPathClearToPosition(Vector3 targetPosition)
         {
             Vector3 direction = targetPosition - transform.position;
-            direction.y = 0; // Ensure the direction is in the XZ plane
+            direction.y = 0;
 
             if (Mathf.Abs(direction.x) > Mathf.Abs(direction.z))
             {
-                direction = new Vector3(Mathf.Sign(direction.x), 0, 0); // Cast ray in the X direction
+                direction = new Vector3(Mathf.Sign(direction.x), 0, 0);
             }
             else
             {
-                direction = new Vector3(0, 0, Mathf.Sign(direction.z)); // Cast ray in the Z direction
+                direction = new Vector3(0, 0, Mathf.Sign(direction.z));
             }
 
-            if (Physics.Raycast(transform.position, direction, out RaycastHit hit, Mathf.Infinity))
+            int layerMask = ConstantsUtilities.TriggerBlockLayerMask | ConstantsUtilities.ObstacleLayerMask | ConstantsUtilities.ItemLayerMask;
+
+            if (Physics.Raycast(transform.position, direction, out RaycastHit hit, Mathf.Infinity, layerMask))
             {
-                Debug.DrawRay(transform.position, direction, Color.red, Mathf.Infinity);
+                Debug.DrawRay(transform.position, direction * hit.distance, Color.red, 2.0f);
+
                 if (hit.collider.gameObject.layer == LayerMask.NameToLayer("TriggerBlock"))
                 {
                     Debug.Log(hit.transform.name);
                     return true;
                 }
 
+                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Obstacle"))
+                {
+                    Debug.Log(hit.transform.name);
+                    return false;
+                }
+
                 if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Item"))
                 {
-                    if (hit.transform != transform.parent && hit.transform.parent != transform.parent &&
-                        hit.transform != transform)
+                    if (hit.transform != transform.parent && hit.transform.parent != transform.parent && hit.transform != transform)
                     {
                         Debug.Log(hit.transform.name);
                         return false;

@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using Runtime.Entities;
 using Runtime.Enums;
@@ -10,10 +11,10 @@ namespace Runtime.Controllers
 {
     public class BlockTriggerController : MonoBehaviour
     {
-        public GameColor triggerColor;
-        public ItemSize itemSize;
-
+        [SerializeField] private GameColor triggerColor;
+        [SerializeField] private ItemSize itemSize;
         [SerializeField] private List<Item> itemsInTrigger = new List<Item>();
+        [SerializeField] private Transform blockDestroyingPosition;
 
         private void OnTriggerEnter(Collider other)
         {
@@ -33,7 +34,8 @@ namespace Runtime.Controllers
             if (other.CompareTag(ConstantsUtilities.ItemTag))
             {
                 var itemController = other.GetComponent<Item>();
-                if (itemController != null && itemsInTrigger.Contains(itemController) && itemController.isActiveAndEnabled)
+                if (itemController != null && itemsInTrigger.Contains(itemController) &&
+                    itemController.isActiveAndEnabled)
                 {
                     itemsInTrigger.Remove(itemController);
                     CheckTrigger();
@@ -43,13 +45,13 @@ namespace Runtime.Controllers
 
         private void CheckTrigger()
         {
-            List<Item> itemsToRemove = new List<Item>(); // To avoid concurrent modification exception
+            List<Item> itemsToRemove = new List<Item>();
 
             foreach (var itemController in itemsInTrigger)
             {
                 if (itemController.itemColor == triggerColor && IsItemFitToBlock(itemController))
                 {
-                    if(itemController.CheckChildrenInfiniteRaycast(transform.position))
+                    if (itemController.CheckChildrenInfiniteRaycast(transform.position))
                     {
                         itemsToRemove.Add(itemController);
                     }
@@ -64,14 +66,22 @@ namespace Runtime.Controllers
 
         private void BlockDestroyingAnimation(Item blockObject)
         {
-            if (itemsInTrigger.Contains(blockObject)) itemsInTrigger.Remove(blockObject);
-            if (MovementManager.Instance.GetSelectedItem() == blockObject) MovementManager.Instance.SetSelectedItem(null);
-            GridManager.Instance.RemoveItem(blockObject);
+            itemsInTrigger.Remove(blockObject);
+            if (MovementManager.Instance.GetSelectedItem() == blockObject)
+             GridManager.Instance.RemoveItem(blockObject);
+            blockObject.DisableColliders();
 
-            transform.DOLocalMove(new Vector3(0, -0.25f, 0), 0.25f).SetRelative().SetEase(Ease.InExpo).OnComplete(() =>
+            transform.DOLocalMove(new Vector3(0, -0.25f, 0), 0.5f).SetRelative().SetEase(Ease.InExpo).OnComplete(() =>
             {
-                Destroy(blockObject.gameObject);
-                BackToTheOriginalPosition();
+                blockObject.gameObject.transform.DOMove(blockDestroyingPosition.position, 0.1f).SetEase(Ease.Linear).OnComplete(() =>
+                    {
+                        MovementManager.Instance.SetSelectedItem(null);
+                        blockObject.gameObject.transform.DOLocalMove(transform.position, 0.2f).SetEase(Ease.Linear).OnComplete(() =>
+                            {
+                                Destroy(blockObject.gameObject);
+                                BackToTheOriginalPosition();
+                            });
+                    });
             });
         }
 

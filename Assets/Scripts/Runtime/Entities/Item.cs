@@ -8,6 +8,7 @@ namespace Runtime.Entities
     public class Item : MonoBehaviour
     {
         public ItemChild[] childItems;
+        public BoxCollider[] colliders;
         public GameColor itemColor;
         public CD_GameColor colorData;
         public ItemSize itemSize;
@@ -32,6 +33,14 @@ namespace Runtime.Entities
             foreach (var child in childItems)
             {
                 child.OnDeselected();
+            }
+        }
+        
+        public void DisableColliders()
+        {
+            foreach (var collider in colliders)
+            {
+                collider.enabled = false;
             }
         }
 
