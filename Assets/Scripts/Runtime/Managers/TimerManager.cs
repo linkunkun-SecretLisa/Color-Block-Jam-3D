@@ -76,6 +76,11 @@ namespace Runtime.Managers
                 break;
             }
         }
+        
+        public void StopTimer()
+        {
+            _isTimerActive = false;
+        }
 
         private void OnTimerEnd()
         {

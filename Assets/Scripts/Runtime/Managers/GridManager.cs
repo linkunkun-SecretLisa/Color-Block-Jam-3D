@@ -206,7 +206,7 @@ namespace Runtime.Managers
         {
             if (_itemsList.Count == 0)
             {
-                Debug.Log("Level Completed");
+                GameManager.Instance.SetGameStateLevelComplete();
             }
         }
 
