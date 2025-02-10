@@ -1,6 +1,6 @@
-Color Block Jam 3D Clone
+Color Block Jam 3D Clone \n
 
-Day 1 : Grid System, Cell System, Timer System,UI Done, Item Movement(With rigidbody and just transform) (did not happen and was replaced)
+Day 1 : Grid System, Cell System, Timer System,UI Done, Item Movement(With rigidbody and just transform) (did not happen and was replaced)\n
 Day 2 : Grid Creator & Level Creator  , Item Movement(With raycasts in box boundarys) (its ok, but there are minor bugs), Different Block Types Created
 
 
