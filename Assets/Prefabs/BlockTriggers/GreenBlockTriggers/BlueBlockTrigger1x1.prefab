@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 1692565035503344410}
   - component: {fileID: 8117698260955088888}
   m_Layer: 3
-  m_Name: BlueBlockTrigger2
+  m_Name: BlueBlockTrigger1x1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

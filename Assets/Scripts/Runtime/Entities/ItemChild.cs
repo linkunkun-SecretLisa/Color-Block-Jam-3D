@@ -29,63 +29,65 @@ namespace Runtime.Entities
             renderer.sharedMaterial = material;
         }
 
-        public bool CanMoveInXZ(Vector3 targetPosition, Transform directionOrigin, out bool isCanMoveX,
-            out bool isCanMoveZ)
+        public bool CanMoveInXZ(Vector3 targetPosition, Transform directionOrigin, out bool isCanMoveX, out bool isCanMoveZ, out float xhitDistance, out float zhitDistance)
         {
             Vector3 originPos = directionOrigin.position;
             Vector3 delta = targetPosition - originPos;
-
             isCanMoveX = true;
             isCanMoveZ = true;
+            xhitDistance = raycastDistance;
+            zhitDistance = raycastDistance;
 
-            if (Mathf.Abs(delta.x) > 0.01f)
+            if (Mathf.Abs(delta.x) > 0.1f)
             {
                 Vector3 directionX = new Vector3(Mathf.Sign(delta.x), 0, 0);
-                isCanMoveX = CanMoveInAllDirections(directionX);
+                float minHit = GetMinHitDistance(directionX);
+                isCanMoveX = minHit >= raycastDistance;
+                xhitDistance = minHit;
             }
 
-            if (Mathf.Abs(delta.z) > 0.01f)
+            if (Mathf.Abs(delta.z) > 0.1f)
             {
                 Vector3 directionZ = new Vector3(0, 0, Mathf.Sign(delta.z));
-                isCanMoveZ = CanMoveInAllDirections(directionZ);
+                float minHit = GetMinHitDistance(directionZ);
+                isCanMoveZ = minHit >= raycastDistance;
+                zhitDistance = minHit;
             }
 
             return isCanMoveX && isCanMoveZ;
         }
 
-        public bool CanMoveInAllDirections(Vector3 direction)
+        private float GetMinHitDistance(Vector3 direction)
         {
-            Vector3 rightOffset = new Vector3(0, 0, 1) * 0.48f;
-            Vector3 upOffset = new Vector3(1, 0, 0) * 0.48f;
-
+            float minDistance = raycastDistance;
             Vector3[] raycastOrigins = new Vector3[3];
 
             if (Mathf.Abs(direction.x) > 0)
             {
                 raycastOrigins[0] = transform.position; // Center
-                raycastOrigins[1] = transform.position + rightOffset; // Top
-                raycastOrigins[2] = transform.position - rightOffset; // Bottom
+                raycastOrigins[1] = transform.position + new Vector3(0, 0, 0.48f); // Top
+                raycastOrigins[2] = transform.position - new Vector3(0, 0, 0.48f); // Bottom
             }
             else if (Mathf.Abs(direction.z) > 0)
             {
                 raycastOrigins[0] = transform.position; // Center
-                raycastOrigins[1] = transform.position + upOffset; // Right
-                raycastOrigins[2] = transform.position - upOffset; // Left
+                raycastOrigins[1] = transform.position + new Vector3(0.48f, 0, 0); // Right
+                raycastOrigins[2] = transform.position - new Vector3(0.48f, 0, 0); // Left
             }
 
             foreach (var origin in raycastOrigins)
             {
-                Debug.DrawRay(origin, direction * raycastDistance, Color.red);
-                if (Physics.Raycast(origin, direction, out RaycastHit hit, raycastDistance, obstacleLayerMask))
+                Debug.DrawRay(origin, direction * 10f, Color.red);
+                if (Physics.Raycast(origin, direction, out RaycastHit hit, Mathf.Infinity, obstacleLayerMask))
                 {
-                    if (hit.transform != transform.parent)
+                   
+                    if (hit.distance < raycastDistance)
                     {
-                        return false;
+                        minDistance = Mathf.Min(minDistance, hit.distance);
                     }
                 }
             }
-
-            return true;
+            return minDistance;
         }
     }
 }
