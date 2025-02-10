@@ -3,6 +3,7 @@ using Runtime.Entities;
 using Runtime.Enums;
 using Runtime.Managers;
 using Runtime.Utilities;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Runtime.Controllers
@@ -12,44 +13,62 @@ namespace Runtime.Controllers
         public GameColor triggerColor;
         public ItemSize itemSize;
 
+        [SerializeField] private List<Item> itemsInTrigger = new List<Item>();
+
         private void OnTriggerEnter(Collider other)
         {
             if (other.CompareTag(ConstantsUtilities.ItemTag))
             {
-                Debug.Log("Item Triggered");
                 var itemController = other.GetComponent<Item>();
-                if (itemController != null)
+                if (itemController != null && !itemsInTrigger.Contains(itemController))
                 {
-                    if (itemController.itemColor == triggerColor && IsItemFitToBlock(itemController))
-                    {
-                        BlockDestroyingAnimation(itemController);
-                    }
+                    itemsInTrigger.Add(itemController);
+                    CheckTrigger();
                 }
             }
         }
 
+        private void OnTriggerExit(Collider other)
+        {
+            if (other.CompareTag(ConstantsUtilities.ItemTag))
+            {
+                var itemController = other.GetComponent<Item>();
+                if (itemController != null && itemsInTrigger.Contains(itemController) && itemController.isActiveAndEnabled)
+                {
+                    itemsInTrigger.Remove(itemController);
+                    CheckTrigger();
+                }
+            }
+        }
+
+        private void CheckTrigger()
+        {
+            List<Item> itemsToRemove = new List<Item>(); // To avoid concurrent modification exception
+
+            foreach (var itemController in itemsInTrigger)
+            {
+                if (itemController.itemColor == triggerColor && IsItemFitToBlock(itemController))
+                {
+                    itemsToRemove.Add(itemController);
+                }
+            }
+
+            foreach (var item in itemsToRemove)
+            {
+                BlockDestroyingAnimation(item);
+            }
+        }
 
         private void BlockDestroyingAnimation(Item blockObject)
         {
-         
-            
-            
-            transform.DOLocalMove(new Vector3(0, -0.25f, 0), 0.5f).SetRelative().SetEase(Ease.InExpo).OnComplete(() =>
+            if (itemsInTrigger.Contains(blockObject)) itemsInTrigger.Remove(blockObject);
+            if (MovementManager.Instance.GetSelectedItem() == blockObject) MovementManager.Instance.SetSelectedItem(null);
+            GridManager.Instance.RemoveItem(blockObject);
+
+            transform.DOLocalMove(new Vector3(0, -0.25f, 0), 0.25f).SetRelative().SetEase(Ease.InExpo).OnComplete(() =>
             {
-                GridManager.Instance.RemoveItem(blockObject);
-                
-            });
-            blockObject.gameObject.transform.DOLocalMove(transform.position, 0.25f).SetEase(Ease.Flash).OnComplete(() =>
-            {
-                if(MovementManager.Instance.GetSelectedItem() == blockObject)
-                {
-                    MovementManager.Instance.SetSelectedItem(null);
-                }
-                blockObject.transform.DOScale( Vector3.zero, 0.5f).SetEase(Ease.InExpo).OnComplete(() =>
-                {
-                    Destroy(blockObject.gameObject);
-                    BackToTheOriginalPosition();
-                });
+                Destroy(blockObject.gameObject);
+                BackToTheOriginalPosition();
             });
         }
 

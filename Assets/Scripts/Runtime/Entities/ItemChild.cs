@@ -7,7 +7,7 @@ namespace Runtime.Entities
         public Vector2Int gridPosition;
         [SerializeField] private float raycastDistance = 0.5f;
         [SerializeField] private LayerMask obstacleLayerMask;
-        [SerializeField] private Renderer renderer;
+        [SerializeField] private new Renderer renderer;
 
         public void SetGridPosition(Vector2Int gridPosition)
         {

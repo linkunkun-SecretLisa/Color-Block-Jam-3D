@@ -7,52 +7,60 @@ namespace Runtime.Managers
     public class InputManager : SingletonMonoBehaviour<InputManager>
     {
         [SerializeField] private LayerMask layerMask;
-        [SerializeField] private float sphereCastRadius;
+        [SerializeField] private float sphereCastRadius = 0.5f;
         [SerializeField] private bool isInputBlocked;
 
-        void Update()
+        private Camera mainCamera;
+
+        protected override void Awake() 
         {
-            if (!isInputBlocked)
-                GetInput();
+            mainCamera = Camera.main;
         }
 
-        private void GetInput()
+        private void Update()
+        {
+            if (isInputBlocked)
+                return;
+            
+            ProcessInput();
+        }
+
+        private void ProcessInput()
         {
             if (Input.GetMouseButtonDown(0))
             {
-                OnTouchStart(Input.mousePosition);
+                HandleTouchStart(Input.mousePosition);
             }
-
-            if (Input.GetMouseButton(0))
+            else if (Input.GetMouseButton(0))
             {
-                OnTouch(Input.mousePosition);
+                HandleTouch(Input.mousePosition);
             }
-
-            if (Input.GetMouseButtonUp(0))
+            else if (Input.GetMouseButtonUp(0))
             {
-                OnTouchEnd();
+                HandleTouchEnd();
             }
         }
 
-        private void OnTouchStart(Vector3 screenPosition)
+        private void HandleTouchStart(Vector3 screenPosition)
         {
-            Ray ray = Camera.main.ScreenPointToRay(screenPosition);
+            Ray ray = mainCamera.ScreenPointToRay(screenPosition);
             if (Physics.SphereCast(ray, sphereCastRadius, out RaycastHit hit, Mathf.Infinity, layerMask))
             {
-                Item selectedItem = hit.transform.GetComponent<Item>();
-                if (selectedItem != null)
+                Item item = hit.transform.GetComponent<Item>();
+                if (item != null)
                 {
-                    MovementManager.Instance.StartMovement(selectedItem, ray);
+                    MovementManager.Instance.StartMovement(item, ray);
                 }
             }
         }
 
-        private void OnTouch(Vector3 screenPosition)
+        private void HandleTouch(Vector3 screenPosition)
         {
-            MovementManager.Instance.UpdateMovement(Camera.main.ScreenPointToRay(screenPosition));
+            Ray currentRay = mainCamera.ScreenPointToRay(screenPosition);
+            MovementManager.Instance.UpdateMovement(currentRay);
         }
 
-        private void OnTouchEnd()
+        private void HandleTouchEnd()
         {
             MovementManager.Instance.EndMovement();
         }
