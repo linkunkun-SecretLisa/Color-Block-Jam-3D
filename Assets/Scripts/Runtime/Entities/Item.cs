@@ -12,17 +12,11 @@ namespace Runtime.Entities
         public CD_GameColor colorData;
         public ItemSize itemSize;
 
-        public void Init(Vector2Int gridPosition, GameColor gameColor, GridManager gridManager)
+        public void Init(GameColor gameColor, GridManager gridManager)
         {
-            // SetChildsGridPosition(gridPosition);
             itemColor = gameColor;
             gridManager.AddItem(this);
             ApplyChildColor();
-        }
-
-        public void SetChildsGridPosition(Vector2Int gridPosition)
-        {
-            // childItems[0].SetGridPosition(gridPosition);
         }
 
         public void OnSelected()
@@ -39,7 +33,6 @@ namespace Runtime.Entities
             {
                 child.OnDeselected();
             }
-            SetChildsGridPosition(gridPos);
         }
 
         public void ApplyChildColor()
@@ -49,7 +42,7 @@ namespace Runtime.Entities
                 child.ApplyColor(colorData.gameColorsData[(int)itemColor].materialColor);
             }
         }
-        
+
         public bool CanChildsMoveInXZ(Vector3 targetPosition, out bool canMoveX, out bool canMoveZ)
         {
             bool allCanMoveX = true;
@@ -58,7 +51,7 @@ namespace Runtime.Entities
             foreach (var child in childItems)
             {
                 bool childCanMoveX, childCanMoveZ;
-                child.CanMoveInXZ(targetPosition,transform, out childCanMoveX, out childCanMoveZ);
+                child.CanMoveInXZ(targetPosition, transform, out childCanMoveX, out childCanMoveZ);
                 allCanMoveX &= childCanMoveX;
                 allCanMoveZ &= childCanMoveZ;
             }
@@ -66,6 +59,17 @@ namespace Runtime.Entities
             canMoveX = allCanMoveX;
             canMoveZ = allCanMoveZ;
             return canMoveX && canMoveZ;
+        }
+
+        public bool CheckChildrenInfiniteRaycast(Vector3 targetPosition)
+        {
+            bool canReach = true;
+            foreach (var child in childItems)
+            {
+                canReach &= child.IsPathClearToPosition(targetPosition);
+            }
+
+            return canReach;
         }
     }
 }

@@ -49,7 +49,10 @@ namespace Runtime.Controllers
             {
                 if (itemController.itemColor == triggerColor && IsItemFitToBlock(itemController))
                 {
-                    itemsToRemove.Add(itemController);
+                    if(itemController.CheckChildrenInfiniteRaycast(transform.position))
+                    {
+                        itemsToRemove.Add(itemController);
+                    }
                 }
             }
 

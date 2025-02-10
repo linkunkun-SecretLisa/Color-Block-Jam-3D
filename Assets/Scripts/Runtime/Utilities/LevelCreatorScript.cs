@@ -81,7 +81,7 @@ namespace Runtime.Utilities
             {
                 MonoBehaviour item = (MonoBehaviour)PrefabUtility.InstantiatePrefab(itemPrefab.gamePrefab[(int)gridCell.ItemSize].prefab, itemsParentObject.transform);
                 item.transform.position = spawnPosition + new Vector3(0, 0.25f, 0);
-                item.GetComponent<Item>().Init(new Vector2Int(x, y), gridCell.gameColor, gridManager);
+                item.GetComponent<Item>().Init( gridCell.gameColor, gridManager);
             }
 
             if (gridCell.ItemSize == ItemSize.TwoByTwo)
@@ -94,7 +94,7 @@ namespace Runtime.Utilities
                 {
                     MonoBehaviour item = (MonoBehaviour)PrefabUtility.InstantiatePrefab(itemPrefab.gamePrefab[(int)gridCell.ItemSize].prefab, itemsParentObject.transform);
                     item.transform.position = spawnPosition + new Vector3(0, 0.25f, 0);
-                    item.GetComponent<Item>().Init(new Vector2Int(x, y), gridCell.gameColor, gridManager);
+                    item.GetComponent<Item>().Init( gridCell.gameColor, gridManager);
                 }
             }
 
@@ -109,7 +109,7 @@ namespace Runtime.Utilities
                 {
                     MonoBehaviour item = (MonoBehaviour)PrefabUtility.InstantiatePrefab(itemPrefab.gamePrefab[(int)gridCell.ItemSize].prefab, itemsParentObject.transform);
                     item.transform.position = spawnPosition + new Vector3(0, 0.25f, 0);
-                    item.GetComponent<Item>().Init(new Vector2Int(x, y), gridCell.gameColor, gridManager);
+                    item.GetComponent<Item>().Init( gridCell.gameColor, gridManager);
                 }
             }
             
@@ -125,7 +125,7 @@ namespace Runtime.Utilities
                 {
                     MonoBehaviour item = (MonoBehaviour)PrefabUtility.InstantiatePrefab(itemPrefab.gamePrefab[(int)gridCell.ItemSize].prefab, itemsParentObject.transform);
                     item.transform.position = spawnPosition + new Vector3(0, 0.25f, 0);
-                    item.GetComponent<Item>().Init(new Vector2Int(x, y), gridCell.gameColor, gridManager);
+                    item.GetComponent<Item>().Init( gridCell.gameColor, gridManager);
                 }
             }
             

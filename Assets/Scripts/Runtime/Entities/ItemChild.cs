@@ -1,18 +1,14 @@
+using Runtime.Utilities;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace Runtime.Entities
 {
     public class ItemChild : MonoBehaviour
     {
-        public Vector2Int gridPosition;
         [SerializeField] private float raycastDistance = 0.5f;
         [SerializeField] private LayerMask obstacleLayerMask;
         [SerializeField] private new Renderer renderer;
-
-        public void SetGridPosition(Vector2Int gridPosition)
-        {
-            this.gridPosition = gridPosition;
-        }
 
         public void OnSelected()
         {
@@ -80,6 +76,43 @@ namespace Runtime.Entities
                 {
                     if (hit.transform != transform.parent)
                     {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public bool IsPathClearToPosition(Vector3 targetPosition)
+        {
+            Vector3 direction = targetPosition - transform.position;
+            direction.y = 0; // Ensure the direction is in the XZ plane
+
+            if (Mathf.Abs(direction.x) > Mathf.Abs(direction.z))
+            {
+                direction = new Vector3(Mathf.Sign(direction.x), 0, 0); // Cast ray in the X direction
+            }
+            else
+            {
+                direction = new Vector3(0, 0, Mathf.Sign(direction.z)); // Cast ray in the Z direction
+            }
+
+            if (Physics.Raycast(transform.position, direction, out RaycastHit hit, Mathf.Infinity))
+            {
+                Debug.DrawRay(transform.position, direction, Color.red, Mathf.Infinity);
+                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("TriggerBlock"))
+                {
+                    Debug.Log(hit.transform.name);
+                    return true;
+                }
+
+                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Item"))
+                {
+                    if (hit.transform != transform.parent && hit.transform.parent != transform.parent &&
+                        hit.transform != transform)
+                    {
+                        Debug.Log(hit.transform.name);
                         return false;
                     }
                 }

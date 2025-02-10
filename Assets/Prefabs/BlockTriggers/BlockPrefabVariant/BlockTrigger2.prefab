@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6849692324967412545}
   - component: {fileID: 3323639404330912317}
   - component: {fileID: 7598337860865635277}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: BlockVisual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 7295902853574090872}
   - component: {fileID: 8497267427339969207}
   - component: {fileID: 8117698260955088888}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: BlockTrigger2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -181,7 +181,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   triggerColor: 0
   itemSize: 2
-  triggerAxis: 0
+  itemsInTrigger: []
 --- !u!1 &5496954118491516871
 GameObject:
   m_ObjectHideFlags: 0
@@ -192,7 +192,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7480629818922251042}
   - component: {fileID: 2960703428144671334}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: ArrowImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -13,6 +13,7 @@ namespace Runtime.Utilities
         #region Layers
 
         public static readonly int ItemLayer = LayerMask.GetMask("Item");
+        public static readonly int TriggerBlock = LayerMask.GetMask("TriggerBlock");
 
         #endregion
 
