@@ -13,17 +13,17 @@ namespace Runtime.Entities
 
         public void Init(Vector2Int gridPosition, GameColor gameColor, GridManager gridManager)
         {
+            // SetChildsGridPosition(gridPosition);
             itemColor = gameColor;
             gridManager.AddItem(this);
             ApplyChildColor();
+
+       
         }
 
         public void SetChildsGridPosition(Vector2Int gridPosition)
         {
-            foreach (var child in childItems)
-            {
-                child.SetGridPosition(gridPosition);
-            }
+            // childItems[0].SetGridPosition(gridPosition);
         }
 
         public void OnSelected()
@@ -51,31 +51,19 @@ namespace Runtime.Entities
             }
         }
         
-        public bool CanChildsMoveInXZ(Vector3 targetPosition, out bool canMoveX, out bool canMoveZ, out float xhitDistance, out float zhitDistance)
+        public bool CanChildsMoveInXZ(Vector3 targetPosition, out bool canMoveX, out bool canMoveZ)
         {
             bool allCanMoveX = true;
             bool allCanMoveZ = true;
-            xhitDistance = 0.5f;
-            zhitDistance = 0.5f;
 
             foreach (var child in childItems)
             {
                 bool childCanMoveX, childCanMoveZ;
-                float childX, childZ;
-                child.CanMoveInXZ(targetPosition, transform, out childCanMoveX, out childCanMoveZ, out childX, out childZ);
+                child.CanMoveInXZ(targetPosition,transform, out childCanMoveX, out childCanMoveZ);
                 allCanMoveX &= childCanMoveX;
                 allCanMoveZ &= childCanMoveZ;
-                if (childX < xhitDistance)
-                {
-                    xhitDistance = childX;
-                }
-                if (childZ < zhitDistance)
-                {
-                    zhitDistance = childZ;
-                }
             }
 
-            Debug.Log($"X: {xhitDistance} Z: {zhitDistance}");
             canMoveX = allCanMoveX;
             canMoveZ = allCanMoveZ;
             return canMoveX && canMoveZ;
