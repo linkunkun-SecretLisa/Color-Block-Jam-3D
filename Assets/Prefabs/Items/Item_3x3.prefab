@@ -319,7 +319,7 @@ GameObject:
   - component: {fileID: 3544145688998599726}
   m_Layer: 3
   m_Name: Item_3x3
-  m_TagString: Untagged
+  m_TagString: Item
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -433,6 +433,7 @@ MonoBehaviour:
   - {fileID: 8131098516477249687}
   itemColor: 1
   colorData: {fileID: 11400000, guid: e65212faa0de42942a7ece2cf3e7d475, type: 2}
+  itemSize: 4
 --- !u!1 &6839966440078735611
 GameObject:
   m_ObjectHideFlags: 0

@@ -11,7 +11,7 @@ using UnityEditor;
 
 namespace Runtime.Managers
 {
-    public class GridManager : MonoBehaviour
+    public class GridManager : SingletonMonoBehaviour<GridManager>
     {
         [Header("Grid Settings")] public int _width;
         public int _height;

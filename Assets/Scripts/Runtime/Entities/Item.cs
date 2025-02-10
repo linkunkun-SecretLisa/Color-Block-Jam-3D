@@ -10,6 +10,7 @@ namespace Runtime.Entities
         public ItemChild[] childItems;
         public GameColor itemColor;
         public CD_GameColor colorData;
+        public ItemSize itemSize;
 
         public void Init(Vector2Int gridPosition, GameColor gameColor, GridManager gridManager)
         {
@@ -17,8 +18,6 @@ namespace Runtime.Entities
             itemColor = gameColor;
             gridManager.AddItem(this);
             ApplyChildColor();
-
-       
         }
 
         public void SetChildsGridPosition(Vector2Int gridPosition)

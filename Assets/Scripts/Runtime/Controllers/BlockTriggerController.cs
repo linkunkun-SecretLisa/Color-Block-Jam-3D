@@ -1,6 +1,7 @@
 using DG.Tweening;
 using Runtime.Entities;
 using Runtime.Enums;
+using Runtime.Managers;
 using Runtime.Utilities;
 using UnityEngine;
 
@@ -13,40 +14,39 @@ namespace Runtime.Controllers
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.layer == ConstantsUtilities.ItemLayer)
+            if (other.CompareTag(ConstantsUtilities.ItemTag))
             {
+                Debug.Log("Item Triggered");
                 var itemController = other.GetComponent<Item>();
                 if (itemController != null)
                 {
                     if (itemController.itemColor == triggerColor && IsItemFitToBlock(itemController))
                     {
-                        BlockDestroyingAnimation(other.gameObject);
+                        BlockDestroyingAnimation(itemController);
                     }
                 }
             }
         }
-        
-        
-        
-        
-        private void BlockDestroyingAnimation(GameObject blockObject)
+
+
+        private void BlockDestroyingAnimation(Item blockObject)
         {
-            transform.DOLocalMove(new Vector3(0, -1, 0), 1f).SetRelative().SetEase(Ease.InOutBounce).OnComplete (() =>
+            transform.DOLocalMove(new Vector3(0, -0.25f, 0), 0.5f).SetRelative().SetEase(Ease.InExpo).OnComplete(() =>
             {
-                Destroy(gameObject);
+                GridManager.Instance.RemoveItem(blockObject);
+                Destroy(blockObject.gameObject);
                 BackToTheOriginalPosition();
             });
         }
-        
+
         private void BackToTheOriginalPosition()
         {
-            transform.DOLocalMove(new Vector3(0, 1, 0), 1f).SetRelative().SetEase(Ease.InOutBounce);
+            transform.DOLocalMove(new Vector3(0, 0.25f, 0), 0.5f).SetRelative().SetEase(Ease.InExpo);
         }
-        
+
         private bool IsItemFitToBlock(Item item)
         {
-            //check if the item size is equal or bigger to the block size
-            return true;
+            return (int)item.itemSize < (int)itemSize;
         }
     }
 }
