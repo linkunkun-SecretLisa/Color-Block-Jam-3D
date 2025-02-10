@@ -70,6 +70,11 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: bf8d6e8214b1bc440bb4ab9ec638819c, type: 2}
     - target: {fileID: 8117698260955088888, guid: e3bce6a4294a7734b89bdbe8dd3dc190,
         type: 3}
+      propertyPath: itemSize
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8117698260955088888, guid: e3bce6a4294a7734b89bdbe8dd3dc190,
+        type: 3}
       propertyPath: triggerColor
       value: 1
       objectReference: {fileID: 0}

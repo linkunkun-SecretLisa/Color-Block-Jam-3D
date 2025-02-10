@@ -78,5 +78,16 @@ namespace Runtime.Managers
                 gridManager.UpdateAllCellOccupied();
             }
         }
+
+
+        public Item GetSelectedItem()
+        {
+            return _selectedItem;
+        }
+        
+        public void SetSelectedItem(Item item)
+        {
+            _selectedItem = item;
+        }
     }
 }

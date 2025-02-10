@@ -31,11 +31,25 @@ namespace Runtime.Controllers
 
         private void BlockDestroyingAnimation(Item blockObject)
         {
+         
+            
+            
             transform.DOLocalMove(new Vector3(0, -0.25f, 0), 0.5f).SetRelative().SetEase(Ease.InExpo).OnComplete(() =>
             {
                 GridManager.Instance.RemoveItem(blockObject);
-                Destroy(blockObject.gameObject);
-                BackToTheOriginalPosition();
+                
+            });
+            blockObject.gameObject.transform.DOLocalMove(transform.position, 0.25f).SetEase(Ease.Flash).OnComplete(() =>
+            {
+                if(MovementManager.Instance.GetSelectedItem() == blockObject)
+                {
+                    MovementManager.Instance.SetSelectedItem(null);
+                }
+                blockObject.transform.DOScale( Vector3.zero, 0.5f).SetEase(Ease.InExpo).OnComplete(() =>
+                {
+                    Destroy(blockObject.gameObject);
+                    BackToTheOriginalPosition();
+                });
             });
         }
 
@@ -46,7 +60,7 @@ namespace Runtime.Controllers
 
         private bool IsItemFitToBlock(Item item)
         {
-            return (int)item.itemSize < (int)itemSize;
+            return (int)item.itemSize <= (int)itemSize;
         }
     }
 }

@@ -193,10 +193,20 @@ namespace Runtime.Managers
             if (_itemsList.Contains(item))
             {
                 _itemsList.Remove(item);
+                CheckItemCount();
+                
 
 #if UNITY_EDITOR
                 EditorUtility.SetDirty(item.gameObject);
 #endif
+            }
+        }
+
+        private void CheckItemCount()
+        {
+            if (_itemsList.Count == 0)
+            {
+                Debug.Log("Level Completed");
             }
         }
 
