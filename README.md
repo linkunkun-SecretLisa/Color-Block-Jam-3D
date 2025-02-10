@@ -9,6 +9,10 @@
 - Item Movement (With raycasts in box boundaries) (minor bugs exist)
 - Different Block Types Created
 
+ ### Day 3:
+- Block Trigger System
+- Item Movement( I tried 3 different raycast solutions; -boxcast -x z float distance,  I left it in the most acceptable condition, minor bugs are present)
+
 ### Plugins Used:
 - DoTween
 - UniTask
