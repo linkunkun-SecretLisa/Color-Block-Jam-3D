@@ -28,5 +28,5 @@
 - Different Block Types Created
 
  ### Day 3:
-- Block Trigger System
+- Block Trigger System (Minor Bugs present.)
 - Item Movement( I tried 3 different raycast solutions; -boxcast -x z float distance,  I left it in the most acceptable condition, minor bugs are present)
