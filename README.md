@@ -1,18 +1,5 @@
 ## Color Block Jam 3D Clone
 
-### Day 1:
-- Grid System, Cell System, Timer System, UI Done
-- Item Movement (With Rigidbody and just Transform) (did not happen and was replaced)
-
-### Day 2:
-- Grid Creator & Level Creator
-- Item Movement (With raycasts in box boundaries) (minor bugs exist)
-- Different Block Types Created
-
- ### Day 3:
-- Block Trigger System
-- Item Movement( I tried 3 different raycast solutions; -boxcast -x z float distance,  I left it in the most acceptable condition, minor bugs are present)
-
 ### Plugins Used:
 - DoTween
 - UniTask
@@ -28,3 +15,18 @@
 [![Video 2](https://img.youtube.com/vi/VIDEO_ID2/0.jpg)](https://github.com/user-attachments/assets/52c20d0e-3874-4f78-8ad3-4d22ad7e5161)
 ### Grid Creation & Level Creation Data's Save (Set Dirty & Scriptables)
 [![Video 3](https://img.youtube.com/vi/VIDEO_ID3/0.jpg)](https://github.com/user-attachments/assets/50c74aa9-0207-4350-a98d-e19805e6c772)
+### Basic Gameplay
+[![Video 3](https://img.youtube.com/vi/VIDEO_ID3/0.jpg)](https://github.com/user-attachments/assets/727baa2b-462c-48dd-9a21-90866c4304a4)
+
+### Day 1:
+- Grid System, Cell System, Timer System, UI Done
+- Item Movement (With Rigidbody and just Transform) (did not happen and was replaced)
+
+### Day 2:
+- Grid Creator & Level Creator
+- Item Movement (With raycasts in box boundaries) (minor bugs exist)
+- Different Block Types Created
+
+ ### Day 3:
+- Block Trigger System
+- Item Movement( I tried 3 different raycast solutions; -boxcast -x z float distance,  I left it in the most acceptable condition, minor bugs are present)
