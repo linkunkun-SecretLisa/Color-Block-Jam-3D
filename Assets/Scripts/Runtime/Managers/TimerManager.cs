@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using Runtime.Enums;
 using UnityEngine;
 using DG.Tweening;
 using Runtime.Utilities;
@@ -8,9 +7,8 @@ namespace Runtime.Managers
 {
     public class TimerManager : SingletonMonoBehaviour<TimerManager>
     {
-        [SerializeField] private int _time;
-        [SerializeField] private bool _isTimerActive;
-
+        [SerializeField] private int time;
+        [SerializeField] private bool isTimerActive;
         private Color _originalColor;
         private Vector3 _originalScale;
 
@@ -28,17 +26,17 @@ namespace Runtime.Managers
 
         private void Init()
         {
-            _isTimerActive = true;
+            isTimerActive = true;
 
             if (PlayerPrefs.GetInt(PlayerPrefsKeys.CurrentLevelIndexInt) < 0 ||
                 PlayerPrefs.GetInt(PlayerPrefsKeys.CurrentLevelIndexInt) > RemoteConfigDummy.timers.Count)
             {
                 Debug.LogError("Invalid timer index. Using default timer value.");
-                _time = RemoteConfigDummy.DefaultTimer;
+                time = RemoteConfigDummy.DefaultTimer;
             }
             else
             {
-                _time = RemoteConfigDummy.timers[PlayerPrefs.GetInt(PlayerPrefsKeys.CurrentLevelIndexInt) - 1];
+                time = RemoteConfigDummy.timers[PlayerPrefs.GetInt(PlayerPrefsKeys.CurrentLevelIndexInt) - 1];
             }
 
             _originalColor = UIManager.Instance.timerText.color;
@@ -47,11 +45,11 @@ namespace Runtime.Managers
 
         private void UpdateTimerText()
         {
-            int minutes = _time / 60;
-            int seconds = _time % 60;
+            int minutes = time / 60;
+            int seconds = time % 60;
             UIManager.Instance.timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
 
-            if (_time <= 10)
+            if (time <= 10)
             {
                 UIManager.Instance.timerText.DOColor(Color.red, 0.5f).SetLoops(-1, LoopType.Yoyo);
             }
@@ -64,22 +62,22 @@ namespace Runtime.Managers
 
         private async void PassTimeForCountDown()
         {
-            while (_isTimerActive)
+            while (isTimerActive)
             {
                 await UniTask.WaitForSeconds(1);
 
-                _time--;
+                time--;
                 UpdateTimerText();
 
-                if (_time != 0) continue;
+                if (time != 0) continue;
                 OnTimerEnd();
                 break;
             }
         }
-        
+
         public void StopTimer()
         {
-            _isTimerActive = false;
+            isTimerActive = false;
         }
 
         private void OnTimerEnd()
@@ -89,7 +87,7 @@ namespace Runtime.Managers
 
         private void OnDisable()
         {
-            _isTimerActive = false;
+            isTimerActive = false;
         }
     }
 }

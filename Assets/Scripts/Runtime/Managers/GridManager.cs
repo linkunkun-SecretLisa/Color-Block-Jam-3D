@@ -79,16 +79,13 @@ namespace Runtime.Managers
 
             obstacleParent = new GameObject("ObstacleParent");
 
-            // Iterate over the border region from x = -1 to _width, and y = -1 to _height.
             for (int x = -1; x <= _width; x++)
             {
                 for (int y = -1; y <= _height; y++)
                 {
-                    // Skip internal cells and ensure only border cells are considered.
                     if (x != -1 && x != _width && y != -1 && y != _height)
                         continue;
 
-                    // Skip the four corners.
                     if ((x == -1 && y == -1) ||
                         (x == -1 && y == _height) ||
                         (x == _width && y == -1) ||
@@ -100,7 +97,6 @@ namespace Runtime.Managers
                     Vector3 position = GridSpaceToWorldSpace(new Vector2Int(x, y));
                     Quaternion rotation = Quaternion.identity;
 
-                    // Determine rotation based on which edge this obstacle is on.
                     if (x == -1 && y >= 0 && y < _height)
                     {
                         rotation = Quaternion.Euler(0, 90, 0);

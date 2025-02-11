@@ -24,8 +24,7 @@ namespace Runtime.Utilities
         public GameObject itemsParentObject;
         public GridManager gridManager;
 
-        public ItemSize
-            itemSize; // item sizes like 1x1, 2x2, 3x2; when one is selected, the item can be placed on the grid
+        public ItemSize itemSize; // item sizes like 1x1, 2x2, 3x2; when one is selected, the item can be placed on the grid
 
         public GameColor gameColor;
         private LevelData _currentLevelData;

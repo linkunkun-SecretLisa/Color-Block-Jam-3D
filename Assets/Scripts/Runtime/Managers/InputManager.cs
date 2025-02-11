@@ -14,7 +14,7 @@ namespace Runtime.Managers
 
         public event Action OnTouch;
 
-        protected override void Awake() 
+        protected override void Awake()
         {
             mainCamera = Camera.main;
         }
@@ -23,11 +23,23 @@ namespace Runtime.Managers
         {
             if (isInputBlocked)
                 return;
-            
+
             ProcessInput();
         }
 
         private void ProcessInput()
+        {
+            if (Input.touchCount > 0)
+            {
+                ProcessTouchInput();
+            }
+            else
+            {
+                ProcessMouseInput();
+            }
+        }
+
+        private void ProcessMouseInput()
         {
             if (Input.GetMouseButtonDown(0))
             {
@@ -40,6 +52,25 @@ namespace Runtime.Managers
             else if (Input.GetMouseButtonUp(0))
             {
                 HandleTouchEnd();
+            }
+        }
+
+        private void ProcessTouchInput()
+        {
+            Touch touch = Input.GetTouch(0);
+            switch (touch.phase)
+            {
+                case TouchPhase.Began:
+                    HandleTouchStart(touch.position);
+                    break;
+                case TouchPhase.Moved:
+                case TouchPhase.Stationary:
+                    HandleTouch(touch.position);
+                    break;
+                case TouchPhase.Ended:
+                case TouchPhase.Canceled:
+                    HandleTouchEnd();
+                    break;
             }
         }
 

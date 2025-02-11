@@ -80,7 +80,7 @@ namespace Runtime.Entities
 
             return canReach;
         }
-        
+
         public int GetChildCount()
         {
             return childItems.Length;
