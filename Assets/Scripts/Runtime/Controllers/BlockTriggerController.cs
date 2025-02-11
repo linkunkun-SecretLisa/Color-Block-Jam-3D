@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using Runtime.Entities;
@@ -44,7 +43,7 @@ namespace Runtime.Controllers
                     CheckTrigger();
                 }
             }
-            else if (other.CompareTag("ItemChild"))
+            else if (other.CompareTag(ConstantsUtilities.ItemChildTag))
             {
                 AddItemsChild(other);
             }
@@ -61,7 +60,7 @@ namespace Runtime.Controllers
                     CheckTrigger();
                 }
             }
-            else if (other.CompareTag("ItemChild"))
+            else if (other.CompareTag(ConstantsUtilities.ItemChildTag))
             {
                 RemoveItemsChild(other);
             }

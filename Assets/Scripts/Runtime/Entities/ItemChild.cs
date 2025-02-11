@@ -99,7 +99,7 @@ namespace Runtime.Entities
 
             if (Physics.Raycast(transform.position, direction, out RaycastHit hit, Mathf.Infinity, layerMask))
             {
-                Debug.DrawRay(transform.position, direction * hit.distance, Color.red, 2.0f);
+                // Debug.DrawRay(transform.position, direction * hit.distance, Color.red, 2.0f);
 
                 if (hit.collider.gameObject.layer == ConstantsUtilities.TriggerBlockLayer)
                 {

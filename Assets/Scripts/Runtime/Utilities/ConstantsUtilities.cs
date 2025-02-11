@@ -7,6 +7,7 @@ namespace Runtime.Utilities
         #region Tags
 
         public static readonly string ItemTag= "Item";
+        public static readonly string ItemChildTag = "ItemChild";
 
         #endregion
 
