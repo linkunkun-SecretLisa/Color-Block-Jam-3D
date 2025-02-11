@@ -103,7 +103,6 @@ namespace Runtime.Entities
 
                 if (hit.collider.gameObject.layer == LayerMask.NameToLayer("TriggerBlock"))
                 {
-                    Debug.Log(hit.transform.name);
                     return true;
                 }
 
@@ -111,13 +110,11 @@ namespace Runtime.Entities
                 {
                     if (hit.transform != transform.parent && hit.transform.parent != transform.parent && hit.transform != transform)
                     {
-                        Debug.Log(hit.transform.name);
                         return false;
                     }
                 }
                 if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Obstacle"))
                 {
-                    Debug.Log(hit.transform.name);
                     return true;
                 }
 

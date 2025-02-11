@@ -11,12 +11,12 @@ namespace Runtime.Controllers
 {
     public class BlockTriggerController : MonoBehaviour
     {
+        [ShowInInspector] private Dictionary<Item, int> itemChildsCount = new Dictionary<Item, int>();
+        [SerializeField] private List<Item> itemsInTrigger = new List<Item>();
         [SerializeField] private GameColor triggerColor;
         [SerializeField] private ItemSize itemSize;
-        [SerializeField] private List<Item> itemsInTrigger = new List<Item>();
         [SerializeField] private Transform blockDestroyingPosition;
         [SerializeField] private BoxCollider triggerCollider;
-        [ShowInInspector] private Dictionary<Item, int> itemChildsCount = new Dictionary<Item, int>();
 
         private void Start() =>
             InputManager.Instance.OnTouch += CheckTriggerContuniously;
@@ -129,6 +129,7 @@ namespace Runtime.Controllers
         private void BlockDestroyingAnimation(Item blockItem)
         {
             itemsInTrigger.Remove(blockItem);
+            itemChildsCount.Remove(blockItem);
             if (MovementManager.Instance.GetSelectedItem() == blockItem)
                 GridManager.Instance.RemoveItem(blockItem);
             blockItem.DisableColliders();
@@ -138,11 +139,12 @@ namespace Runtime.Controllers
                 .SetEase(Ease.InExpo)
                 .OnComplete(() =>
                 {
+                    MovementManager.Instance.SetSelectedItem(null);
                     blockItem.transform.DOMove(blockDestroyingPosition.position, 0.1f)
                         .SetEase(Ease.Linear)
                         .OnComplete(() =>
                         {
-                            MovementManager.Instance.SetSelectedItem(null);
+                           
                             blockItem.transform.DOLocalMove(transform.position, 0.2f)
                                 .SetEase(Ease.Linear)
                                 .OnComplete(() =>
