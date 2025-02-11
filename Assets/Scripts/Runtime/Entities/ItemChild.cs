@@ -101,19 +101,19 @@ namespace Runtime.Entities
             {
                 Debug.DrawRay(transform.position, direction * hit.distance, Color.red, 2.0f);
 
-                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("TriggerBlock"))
+                if (hit.collider.gameObject.layer == ConstantsUtilities.TriggerBlockLayer)
                 {
                     return true;
                 }
 
-                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Item"))
+                if (hit.collider.gameObject.layer == ConstantsUtilities.ItemLayer)
                 {
                     if (hit.transform != transform.parent && hit.transform.parent != transform.parent && hit.transform != transform)
                     {
                         return false;
                     }
                 }
-                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Obstacle"))
+                if (hit.collider.gameObject.layer == ConstantsUtilities.ObstacleLayer)
                 {
                     return true;
                 }

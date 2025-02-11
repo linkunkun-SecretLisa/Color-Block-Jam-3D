@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using Runtime.Entities;
@@ -17,9 +18,20 @@ namespace Runtime.Controllers
         [SerializeField] private ItemSize itemSize;
         [SerializeField] private Transform blockDestroyingPosition;
         [SerializeField] private BoxCollider triggerCollider;
+        private Vector3 originalPosition;
 
-        private void Start() =>
-            InputManager.Instance.OnTouch += CheckTriggerContuniously;
+
+        private void Start()
+        {
+            originalPosition = transform.localPosition;
+            SubscribeEvents();
+        }
+
+        private void SubscribeEvents()
+        {
+            InputManager.OnTouch += CheckTriggerContuniously;
+        }
+
 
         private void OnTriggerEnter(Collider other)
         {
@@ -80,6 +92,7 @@ namespace Runtime.Controllers
             {
                 itemChildsCount[parentItem] = 1;
             }
+
             if (itemChildsCount[parentItem] == parentItem.GetChildCount())
             {
                 CheckTrigger();
@@ -99,6 +112,7 @@ namespace Runtime.Controllers
                 {
                     CheckTrigger();
                 }
+
                 if (itemChildsCount[parentItem] <= 0)
                 {
                     itemChildsCount.Remove(parentItem);
@@ -120,6 +134,7 @@ namespace Runtime.Controllers
                     }
                 }
             }
+
             foreach (var item in itemsToRemove)
             {
                 BlockDestroyingAnimation(item);
@@ -134,8 +149,7 @@ namespace Runtime.Controllers
                 GridManager.Instance.RemoveItem(blockItem);
             blockItem.DisableColliders();
 
-            transform.DOLocalMove(new Vector3(0, -0.25f, 0), 0.5f)
-                .SetRelative()
+            transform.DOLocalMoveY(originalPosition.y - 0.25f, 0.5f)
                 .SetEase(Ease.InExpo)
                 .OnComplete(() =>
                 {
@@ -144,7 +158,6 @@ namespace Runtime.Controllers
                         .SetEase(Ease.Linear)
                         .OnComplete(() =>
                         {
-                           
                             blockItem.transform.DOLocalMove(transform.position, 0.2f)
                                 .SetEase(Ease.Linear)
                                 .OnComplete(() =>
@@ -156,15 +169,10 @@ namespace Runtime.Controllers
                 });
         }
 
-        private void BackToTheOriginalPosition() =>
-            transform.DOLocalMove(new Vector3(0, 0.25f, 0), 0.5f)
-                .SetRelative()
-                .SetEase(Ease.InExpo);
+        private void BackToTheOriginalPosition() => transform.DOLocalMoveY( originalPosition.y, 0.5f).SetEase(Ease.InExpo);
 
-        private bool IsItemFitToBlock(Item item) =>
-            (int)item.itemSize <= (int)itemSize;
+        private bool IsItemFitToBlock(Item item) => (int)item.itemSize <= (int)itemSize;
 
-        private void OnDisable() =>
-            InputManager.Instance.OnTouch -= CheckTriggerContuniously;
+        private void OnDisable() => InputManager.OnTouch -= CheckTriggerContuniously;
     }
 }

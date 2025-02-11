@@ -12,7 +12,7 @@ namespace Runtime.Managers
         [SerializeField] private bool isInputBlocked;
         private Camera mainCamera;
 
-        public event Action OnTouch;
+        public static event Action OnTouch;
 
         protected override void Awake()
         {

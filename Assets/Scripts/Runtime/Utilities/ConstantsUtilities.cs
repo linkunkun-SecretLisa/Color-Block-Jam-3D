@@ -12,9 +12,9 @@ namespace Runtime.Utilities
 
         #region Layers
 
-        public static readonly int ItemLayer = LayerMask.GetMask("Item");
-        public static readonly int TriggerBlockLayer = LayerMask.GetMask("TriggerBlock");
-        public static readonly int ObstacleLayer = LayerMask.GetMask("Obstacle");
+        public static readonly int ItemLayer = LayerMask.NameToLayer("Item");
+        public static readonly int TriggerBlockLayer = LayerMask.NameToLayer("TriggerBlock");
+        public static readonly int ObstacleLayer = LayerMask.NameToLayer("Obstacle");
 
         #endregion
 
