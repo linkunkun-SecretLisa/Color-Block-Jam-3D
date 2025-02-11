@@ -1,10 +1,10 @@
-using System;
+using System.Collections.Generic;
 using DG.Tweening;
 using Runtime.Entities;
 using Runtime.Enums;
 using Runtime.Managers;
 using Runtime.Utilities;
-using System.Collections.Generic;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Runtime.Controllers
@@ -15,17 +15,26 @@ namespace Runtime.Controllers
         [SerializeField] private ItemSize itemSize;
         [SerializeField] private List<Item> itemsInTrigger = new List<Item>();
         [SerializeField] private Transform blockDestroyingPosition;
+        [SerializeField] private BoxCollider triggerCollider;
+        [ShowInInspector] private Dictionary<Item, int> itemChildsCount = new Dictionary<Item, int>();
+
+        private void Start() =>
+            InputManager.Instance.OnTouch += CheckTriggerContuniously;
 
         private void OnTriggerEnter(Collider other)
         {
             if (other.CompareTag(ConstantsUtilities.ItemTag))
             {
-                var itemController = other.GetComponent<Item>();
-                if (itemController != null && !itemsInTrigger.Contains(itemController))
+                var item = other.GetComponent<Item>();
+                if (item != null && !itemsInTrigger.Contains(item))
                 {
-                    itemsInTrigger.Add(itemController);
+                    itemsInTrigger.Add(item);
                     CheckTrigger();
                 }
+            }
+            else if (other.CompareTag("ItemChild"))
+            {
+                AddItemsChild(other);
             }
         }
 
@@ -33,66 +42,127 @@ namespace Runtime.Controllers
         {
             if (other.CompareTag(ConstantsUtilities.ItemTag))
             {
-                var itemController = other.GetComponent<Item>();
-                if (itemController != null && itemsInTrigger.Contains(itemController) &&
-                    itemController.isActiveAndEnabled)
+                var item = other.GetComponent<Item>();
+                if (item != null && itemsInTrigger.Contains(item) && item.isActiveAndEnabled)
                 {
-                    itemsInTrigger.Remove(itemController);
+                    itemsInTrigger.Remove(item);
                     CheckTrigger();
+                }
+            }
+            else if (other.CompareTag("ItemChild"))
+            {
+                RemoveItemsChild(other);
+            }
+        }
+
+        private void CheckTriggerContuniously()
+        {
+            foreach (var kvp in itemChildsCount)
+            {
+                if (kvp.Value == kvp.Key.GetChildCount())
+                {
+                    CheckTrigger();
+                }
+            }
+        }
+
+        private void AddItemsChild(Collider childCollider)
+        {
+            var parentItem = childCollider.GetComponentInParent<Item>();
+            if (parentItem == null)
+                return;
+
+            if (itemChildsCount.ContainsKey(parentItem))
+            {
+                itemChildsCount[parentItem]++;
+            }
+            else
+            {
+                itemChildsCount[parentItem] = 1;
+            }
+            if (itemChildsCount[parentItem] == parentItem.GetChildCount())
+            {
+                CheckTrigger();
+            }
+        }
+
+        private void RemoveItemsChild(Collider childCollider)
+        {
+            var parentItem = childCollider.GetComponentInParent<Item>();
+            if (parentItem == null)
+                return;
+
+            if (itemChildsCount.ContainsKey(parentItem))
+            {
+                itemChildsCount[parentItem]--;
+                if (itemChildsCount[parentItem] == parentItem.GetChildCount())
+                {
+                    CheckTrigger();
+                }
+                if (itemChildsCount[parentItem] <= 0)
+                {
+                    itemChildsCount.Remove(parentItem);
                 }
             }
         }
 
         private void CheckTrigger()
         {
-            List<Item> itemsToRemove = new List<Item>();
-
-            foreach (var itemController in itemsInTrigger)
+            var itemsToRemove = new List<Item>();
+            foreach (var item in itemsInTrigger)
             {
-                if (itemController.itemColor == triggerColor && IsItemFitToBlock(itemController))
+                if (item.itemColor == triggerColor && IsItemFitToBlock(item))
                 {
-                    if (itemController.CheckChildrenInfiniteRaycast(transform.position))
+                    int childCount = itemChildsCount.ContainsKey(item) ? itemChildsCount[item] : 0;
+                    if (childCount == item.GetChildCount() && item.CheckChildrenInfiniteRaycast(transform.position))
                     {
-                        itemsToRemove.Add(itemController);
+                        itemsToRemove.Add(item);
                     }
                 }
             }
-
             foreach (var item in itemsToRemove)
             {
                 BlockDestroyingAnimation(item);
             }
         }
 
-        private void BlockDestroyingAnimation(Item blockObject)
+        private void BlockDestroyingAnimation(Item blockItem)
         {
-            itemsInTrigger.Remove(blockObject);
-            if (MovementManager.Instance.GetSelectedItem() == blockObject)
-             GridManager.Instance.RemoveItem(blockObject);
-            blockObject.DisableColliders();
+            itemsInTrigger.Remove(blockItem);
+            if (MovementManager.Instance.GetSelectedItem() == blockItem)
+                GridManager.Instance.RemoveItem(blockItem);
+            blockItem.DisableColliders();
 
-            transform.DOLocalMove(new Vector3(0, -0.25f, 0), 0.5f).SetRelative().SetEase(Ease.InExpo).OnComplete(() =>
-            {
-                blockObject.gameObject.transform.DOMove(blockDestroyingPosition.position, 0.1f).SetEase(Ease.Linear).OnComplete(() =>
-                    {
-                        MovementManager.Instance.SetSelectedItem(null);
-                        blockObject.gameObject.transform.DOLocalMove(transform.position, 0.2f).SetEase(Ease.Linear).OnComplete(() =>
-                            {
-                                Destroy(blockObject.gameObject);
-                                BackToTheOriginalPosition();
-                            });
-                    });
-            });
+            transform.DOLocalMove(new Vector3(0, -0.25f, 0), 0.5f)
+                .SetRelative()
+                .SetEase(Ease.InExpo)
+                .OnComplete(() =>
+                {
+                    blockItem.transform.DOMove(blockDestroyingPosition.position, 0.1f)
+                        .SetEase(Ease.Linear)
+                        .OnComplete(() =>
+                        {
+                            MovementManager.Instance.SetSelectedItem(null);
+                            blockItem.transform.DOLocalMove(transform.position, 0.2f)
+                                .SetEase(Ease.Linear)
+                                .OnComplete(() =>
+                                {
+                                    Destroy(blockItem.gameObject);
+                                    BackToTheOriginalPosition();
+                                });
+                        });
+                });
         }
 
-        private void BackToTheOriginalPosition()
-        {
-            transform.DOLocalMove(new Vector3(0, 0.25f, 0), 0.5f).SetRelative().SetEase(Ease.InExpo);
-        }
+        private void BackToTheOriginalPosition() =>
+            transform.DOLocalMove(new Vector3(0, 0.25f, 0), 0.5f)
+                .SetRelative()
+                .SetEase(Ease.InExpo);
 
-        private bool IsItemFitToBlock(Item item)
-        {
-            return (int)item.itemSize <= (int)itemSize;
-        }
+        private bool IsItemFitToBlock(Item item) =>
+            (int)item.itemSize <= (int)itemSize;
+
+        private void OnDisable() =>
+            InputManager.Instance.OnTouch -= CheckTriggerContuniously;
     }
 }

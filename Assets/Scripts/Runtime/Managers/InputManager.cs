@@ -1,3 +1,4 @@
+using System;
 using Runtime.Entities;
 using Runtime.Utilities;
 using UnityEngine;
@@ -9,8 +10,9 @@ namespace Runtime.Managers
         [SerializeField] private LayerMask layerMask;
         [SerializeField] private float sphereCastRadius = 0.5f;
         [SerializeField] private bool isInputBlocked;
-
         private Camera mainCamera;
+
+        public event Action OnTouch;
 
         protected override void Awake() 
         {
@@ -58,6 +60,7 @@ namespace Runtime.Managers
         {
             Ray currentRay = mainCamera.ScreenPointToRay(screenPosition);
             MovementManager.Instance.UpdateMovement(currentRay);
+            OnTouch?.Invoke();
         }
 
         private void HandleTouchEnd()

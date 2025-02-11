@@ -35,7 +35,7 @@ namespace Runtime.Entities
                 child.OnDeselected();
             }
         }
-        
+
         public void DisableColliders()
         {
             foreach (var collider in colliders)
@@ -79,6 +79,11 @@ namespace Runtime.Entities
             }
 
             return canReach;
+        }
+        
+        public int GetChildCount()
+        {
+            return childItems.Length;
         }
     }
 }
