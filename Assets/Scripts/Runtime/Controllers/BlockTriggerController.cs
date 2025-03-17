@@ -164,12 +164,6 @@ namespace Runtime.Controllers
             if (itemChildsCount.ContainsKey(parentItem))
             {
                 itemChildsCount[parentItem]--;
-                
-                if (itemChildsCount[parentItem] == parentItem.GetChildCount())
-                {
-                    CheckTrigger();//todo:lkk this code seems never be executed ? #1
-                }
-
                 // 如果没有子部件在触发器内，移除物品计数
                 if (itemChildsCount[parentItem] <= 0)
                 {
