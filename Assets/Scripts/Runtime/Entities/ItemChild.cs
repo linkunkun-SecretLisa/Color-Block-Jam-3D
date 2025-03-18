@@ -116,6 +116,50 @@ namespace Runtime.Entities
     
             return true;
         }
+        
+        public bool IsPathClearToTarget(Transform target, Vector3 exitDirection)
+        {
+            RaycastHit hit;
+            // Cast ray from child block in the direction of exit
+            // The distance should be from the child to the edge of the board
+            float rayDistance = 10f; // Adjust based on your board size
+        
+            // Layer mask to only detect blocks (not triggers)
+            // 设置检测的层级遮罩
+            int layerMask = ConstantsUtilities.TriggerBlockLayerMask | ConstantsUtilities.ItemLayerMask;
+            
+            // 增强可视化效果 - 始终显示射线方向
+            Debug.DrawRay(transform.position, exitDirection * rayDistance, Color.yellow, 10f);
+            
+            if (Physics.Raycast(this.transform.position, exitDirection, out hit, rayDistance, layerMask))
+            {
+                // If we hit something and it's not part of our own block, path is blocked
+                // Debug.Log(" hit.collider.gameObject.name: " + hit.collider.gameObject.name + 
+                //           "  hit.IsChildOf(parent): " + hit.transform.IsChildOf(transform.parent) + 
+                //           "  target: " + target.name);
+                
+                // 增强可视化效果 - 使用更长的持续时间和更明显的颜色
+                Debug.DrawRay(transform.position, exitDirection * hit.distance, Color.red, 10f);
+                // 在击中点绘制一个小球，使其更容易被看到
+                Debug.DrawLine(hit.point, hit.point + Vector3.up * 0.5f, Color.green, 10f);
+
+                //直接射线到目标物体（触发块)
+                if (hit.collider.gameObject == target.gameObject){
+                    return true;
+                }
+                
+                //射线到item 但是是自己的父节点
+                if (transform.parent == hit.collider.gameObject.transform){
+                    return true;
+                }
+                
+                // 如果射线击中了其他item，路径被阻挡
+                return false;
+            }
+
+            // 射线没有击中item 或者 trigger，说明碰到了障碍物"
+            return false;
+        }
     
         /// <summary>
         /// 检查到目标位置的路径是否畅通

@@ -15,9 +15,6 @@ namespace Runtime.Controllers
     /// </summary>
     public class BlockTriggerController : MonoBehaviour
     {
-        // 跟踪每个物品有多少子物体在触发器内
-        [ShowInInspector] private Dictionary<Item, int> itemChildsCount = new Dictionary<Item, int>();
-        
         // 完全在触发器内的物品列表
         [SerializeField] private List<Item> itemsInTrigger = new List<Item>();
         
@@ -56,7 +53,7 @@ namespace Runtime.Controllers
         /// </summary>
         private void SubscribeEvents()
         {
-            InputManager.OnTouch += CheckTriggerContinuously;
+            InputManager.OnTouchEnd += CheckTriggerOnTouchEnd;
         }
 
         /// <summary>
@@ -67,23 +64,18 @@ namespace Runtime.Controllers
             // 检查是否为Item
             if (other.CompareTag(ConstantsUtilities.ItemTag))
             {
-                Debug.LogError( "OnTriggerEnter 检查是否为Item");
-
                 var item = other.GetComponent<Item>();
                 // 如果是有效物品且尚未在列表中，添加并检查触发条件
                 if (item != null && !itemsInTrigger.Contains(item))
                 {
+                    //确保加进来的都是同色item
                     itemsInTrigger.Add(item);
+                    Debug.Log("itemsInTrigger add item " + item.name + "  trigger:" + gameObject.name);
                     CheckTrigger();
                 }
             }
-            // 检查是否为物品的子部件
-            else if (other.CompareTag(ConstantsUtilities.ItemChildTag))
-            {
-                Debug.LogError( "OnTriggerEnter 检查是否为物品的子部件"); //when to execute this code?
-                AddItemsChild(other);
-            }
         }
+
 
         /// <summary>
         /// 当物体离开触发器时调用
@@ -97,112 +89,67 @@ namespace Runtime.Controllers
                 // 如果是列表中的有效物品，移除并重新检查触发条件
                 if (item != null && itemsInTrigger.Contains(item) && item.isActiveAndEnabled)
                 {
+                    Debug.Log("itemsInTrigger remove item " + item.name + "  trigger:" + gameObject.name);
                     itemsInTrigger.Remove(item);
                     CheckTrigger();
                 }
-            }
-            // 检查是否为物品的子部件
-            else if (other.CompareTag(ConstantsUtilities.ItemChildTag))
-            {
-                RemoveItemsChild(other);
             }
         }
 
         /// <summary>
         /// 持续检查触发器状态（由输入事件触发）
         /// </summary>
-        private void CheckTriggerContinuously()
+        private void CheckTriggerOnTouchEnd()
         {
-            // 检查每个跟踪的物品是否所有子部件都在触发器内
-            foreach (var kvp in itemChildsCount)
+            CheckTrigger();
+        }
+        
+        /// <summary>
+        /// 根据触发器的旋转确定出口方向
+        /// </summary>
+        /// <param name="itemTrans">物品的Transform（当前未使用）</param>
+        /// <returns>出口方向的单位向量</returns>
+        Vector3 DetermineExitDirection(Transform itemTrans)
+        {
+            var rotation = transform.rotation;
+            float angle = rotation.eulerAngles.y;
+            // 默认情况：根据最接近的90度角确定方向
+            int quadrant = Mathf.RoundToInt(angle / 90f) % 4;
+            switch (quadrant)
             {
-                if (kvp.Value == kvp.Key.GetChildCount())
-                {
-                    CheckTrigger();
-                }
+                case 0: return Vector3.back;
+                case 1: return Vector3.left;
+                case 2: return Vector3.forward;
+                case 3: return Vector3.right;
+                default: 
+                    Debug.LogError("意外的象限值: " + quadrant + "，角度: " + angle);
+                    return Vector3.back; // 额外的安全措施
             }
         }
-
-        /// <summary>
-        /// 添加物品子部件到计数器
-        /// </summary>
-        private void AddItemsChild(Collider childCollider)
-        {
-            // 获取子部件的父物品
-            var parentItem = childCollider.GetComponentInParent<Item>();
-            if (parentItem == null)
-                return;
-
-            // 更新子部件计数
-            if (itemChildsCount.ContainsKey(parentItem))
-            {
-                itemChildsCount[parentItem]++;
-            }
-            else
-            {
-                itemChildsCount[parentItem] = 1;
-            }
-
-            // 如果所有子部件都在触发器内，检查触发条件
-            if (itemChildsCount[parentItem] == parentItem.GetChildCount())
-            {
-                CheckTrigger();
-            }
-        }
-
-        /// <summary>
-        /// 从计数器中移除物品子部件
-        /// </summary>
-        private void RemoveItemsChild(Collider childCollider)
-        {
-            // 获取子部件的父物品
-            var parentItem = childCollider.GetComponentInParent<Item>();
-            if (parentItem == null)
-                return;
-
-            // 更新子部件计数
-            if (itemChildsCount.ContainsKey(parentItem))
-            {
-                itemChildsCount[parentItem]--;
-                // 如果没有子部件在触发器内，移除物品计数
-                if (itemChildsCount[parentItem] <= 0)
-                {
-                    itemChildsCount.Remove(parentItem);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 检查触发器条件并处理符合条件的物品
-        /// </summary>
-        private void CheckTrigger()
+        
+        void CheckTrigger()
         {
             itemsToRemoveCache.Clear();
-            
-            // 遍历所有在触发器内的物品
             foreach (var item in itemsInTrigger)
             {
-                // 检查物品颜色和尺寸是否符合要求
-                if (item.itemColor == triggerColor && IsItemFitToBlock(item))
+                if (item == null)
                 {
-                    // 获取该物品在触发器内的子部件数量
-                    int childCount = itemChildsCount.ContainsKey(item) ? itemChildsCount[item] : 0;
-                    
-                    // 如果所有子部件都在触发器内且通过射线检测，添加到待移除列表
-                    if (childCount == item.GetChildCount() && item.CheckChildrenInfiniteRaycast(transform.position))
-                    {
-                        itemsToRemoveCache.Add(item);
-                    }
+                    Debug.LogError( "itemsInTrigger item is null, trigger: " + gameObject.name );
+                    continue;
+                }
+                var exitDirection = DetermineExitDirection(item.transform);
+                if (item.itemColor == triggerColor && item.checkChildCanPassThrough(transform, exitDirection))
+                {
+                    itemsToRemoveCache.Add(item);
                 }
             }
-
-            // 对符合条件的物品执行销毁动画
             foreach (var item in itemsToRemoveCache)
             {
                 BlockDestroyingAnimation(item);
             }
         }
 
+        
         /// <summary>
         /// 执行物品销毁的动画序列
         /// </summary>
@@ -210,11 +157,13 @@ namespace Runtime.Controllers
         {
             // 从跟踪列表中移除物品
             itemsInTrigger.Remove(blockItem);
-            itemChildsCount.Remove(blockItem);
-            
+            Debug.Log("itemsInTrigger Remove item " + blockItem.name + ", trigger: " + gameObject.name);
+
             // 如果物品正被选中，从网格管理器中移除
             if (MovementManager.Instance.GetSelectedItem() == blockItem)
-                GridManager.Instance.RemoveItem(blockItem);
+            {
+                MovementManager.Instance.SetSelectedItem(null);// 解除移动选中
+            }
                 
             // 禁用物品碰撞体，防止进一步交互
             blockItem.DisableColliders();
@@ -227,23 +176,30 @@ namespace Runtime.Controllers
                     // 确保物品不再被选中
                     MovementManager.Instance.SetSelectedItem(null);
                     
-                    // 物品移动到销毁位置
-                    blockItem.transform.DOMove(blockDestroyingPosition.position, itemMoveToDestroyDuration)
-                        .SetEase(Ease.Linear)
+                    // 物品移动,网格对齐
+                    var gridPos = GridManager.Instance.WorldSpaceToGridSpace(blockItem.transform.position);
+                    var alignPos = GridManager.Instance.GridSpaceToWorldSpace(gridPos);
+                    blockItem.transform.DOMove(alignPos, itemMoveToDestroyDuration)
+                       .SetEase(Ease.Linear)
                         .OnComplete(() =>
                         {
-                            // 物品移回触发器位置
-                            blockItem.transform.DOLocalMove(transform.position, itemReturnDuration)
+                            // 物品往触发器方向移动
+                            var exitDirection = DetermineExitDirection(blockItem.transform);
+                            var targetPos = blockItem.transform.position + exitDirection * (int)blockItem.itemSize;
+                            blockItem.transform.DOLocalMove(targetPos, itemReturnDuration)
                                 .SetEase(Ease.Linear)
                                 .OnComplete(() =>
                                 {
                                     // 销毁物品并恢复触发器位置
-                                    Destroy(blockItem.gameObject);
+                                    GridManager.Instance.RemoveItem(blockItem);
+                                    Destroy(blockItem.gameObject); //todo: 销毁动画
+
                                     BackToTheOriginalPosition();
                                 });
                         });
                 });
         }
+
 
         /// <summary>
         /// 将触发器动画回到原始位置
@@ -255,10 +211,13 @@ namespace Runtime.Controllers
         /// 检查物品尺寸是否符合触发器要求
         /// </summary>
         private bool IsItemFitToBlock(Item item) => (int)item.itemSize <= (int)itemSize;
+        
 
         /// <summary>
         /// 取消事件订阅
         /// </summary>
-        private void OnDisable() => InputManager.OnTouch -= CheckTriggerContinuously;
+        private void OnDisable() => InputManager.OnTouchEnd -= CheckTriggerOnTouchEnd;
+        
+        
     }
 }

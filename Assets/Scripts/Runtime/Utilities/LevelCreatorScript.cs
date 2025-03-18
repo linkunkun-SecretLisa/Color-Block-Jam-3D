@@ -78,9 +78,13 @@ namespace Runtime.Utilities
         {
             if (gridCell.ItemSize == ItemSize.OneByOne)
             {
+#if UNITY_EDITOR
                 MonoBehaviour item = (MonoBehaviour)PrefabUtility.InstantiatePrefab(itemPrefab.gamePrefab[(int)gridCell.ItemSize].prefab, itemsParentObject.transform);
+#else
+                MonoBehaviour item = Instantiate(itemPrefab.gamePrefab[(int)gridCell.ItemSize].prefab, itemsParentObject.transform);
+#endif
                 item.transform.position = spawnPosition + new Vector3(0, 0.25f, 0);
-                item.GetComponent<Item>().Init( gridCell.gameColor, gridManager);
+                item.GetComponent<Item>().Init(gridCell.gameColor, gridManager);
             }
 
             if (gridCell.ItemSize == ItemSize.TwoByTwo)
@@ -91,9 +95,13 @@ namespace Runtime.Utilities
 
                 if ((gridCell.gameColor == up.gameColor) && (gridCell.gameColor == left.gameColor))
                 {
+#if UNITY_EDITOR
                     MonoBehaviour item = (MonoBehaviour)PrefabUtility.InstantiatePrefab(itemPrefab.gamePrefab[(int)gridCell.ItemSize].prefab, itemsParentObject.transform);
+#else
+                    MonoBehaviour item = Instantiate(itemPrefab.gamePrefab[(int)gridCell.ItemSize].prefab, itemsParentObject.transform);
+#endif
                     item.transform.position = spawnPosition + new Vector3(0, 0.25f, 0);
-                    item.GetComponent<Item>().Init( gridCell.gameColor, gridManager);
+                    item.GetComponent<Item>().Init(gridCell.gameColor, gridManager);
                 }
             }
 
@@ -106,9 +114,13 @@ namespace Runtime.Utilities
 
                 if ((gridCell.gameColor == up.gameColor) && (gridCell.gameColor == left.gameColor) && (gridCell.gameColor == right.gameColor))
                 {
+#if UNITY_EDITOR
                     MonoBehaviour item = (MonoBehaviour)PrefabUtility.InstantiatePrefab(itemPrefab.gamePrefab[(int)gridCell.ItemSize].prefab, itemsParentObject.transform);
+#else
+                    MonoBehaviour item = Instantiate(itemPrefab.gamePrefab[(int)gridCell.ItemSize].prefab, itemsParentObject.transform);
+#endif
                     item.transform.position = spawnPosition + new Vector3(0, 0.25f, 0);
-                    item.GetComponent<Item>().Init( gridCell.gameColor, gridManager);
+                    item.GetComponent<Item>().Init(gridCell.gameColor, gridManager);
                 }
             }
             
@@ -122,12 +134,15 @@ namespace Runtime.Utilities
 
                 if ((gridCell.gameColor == up.gameColor) && (gridCell.gameColor == left.gameColor) && (gridCell.gameColor == right.gameColor) && (gridCell.gameColor == down.gameColor))
                 {
+#if UNITY_EDITOR
                     MonoBehaviour item = (MonoBehaviour)PrefabUtility.InstantiatePrefab(itemPrefab.gamePrefab[(int)gridCell.ItemSize].prefab, itemsParentObject.transform);
+#else
+                    MonoBehaviour item = Instantiate(itemPrefab.gamePrefab[(int)gridCell.ItemSize].prefab, itemsParentObject.transform);
+#endif
                     item.transform.position = spawnPosition + new Vector3(0, 0.25f, 0);
-                    item.GetComponent<Item>().Init( gridCell.gameColor, gridManager);
+                    item.GetComponent<Item>().Init(gridCell.gameColor, gridManager);
                 }
             }
-            
         }
 
         public Vector3 GridSpaceToWorldSpace(int x, int y)

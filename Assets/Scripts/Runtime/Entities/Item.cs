@@ -121,6 +121,20 @@ namespace Runtime.Entities
             return canReach;
         }
 
+
+        public bool checkChildCanPassThrough(Transform target, Vector3 exitDirection)
+        {
+            // Determine exit direction
+            foreach (var child in childItems)
+            {
+                if (!child.IsPathClearToTarget(target, exitDirection))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         /// <summary>
         /// 获取子项数量
         /// </summary>

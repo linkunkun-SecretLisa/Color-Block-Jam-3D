@@ -48,10 +48,11 @@ namespace Runtime.Managers
             _height = height;
             _spaceModifier = spaceModifier;
     
-            CreateGrid();
     
             // 标记对象为脏，确保Unity保存更改
     #if UNITY_EDITOR
+            CreateGrid();
+
             EditorUtility.SetDirty(this);
     #endif
         }
@@ -214,14 +215,22 @@ namespace Runtime.Managers
             // 根据物品位置更新格子占用状态
             foreach (var item in _itemsList)
             {
+                if (item == null)
+                {
+                    Debug.LogError("item is null!");
+                    continue;
+                }
                 foreach (var childItem in item.childItems)
                 {
-                    Vector2Int gridPosition = WorldSpaceToGridSpace(childItem.transform.position);
-                    Cell cell = _cells[gridPosition.x * _height + gridPosition.y];
-                    cell.SetOccupied(true);
+                    if (childItem != null)
+                    {
+                        Vector2Int gridPosition = WorldSpaceToGridSpace(childItem.transform.position);
+                        Cell cell = _cells[gridPosition.x * _height + gridPosition.y];
+                        cell.SetOccupied(true);
 #if UNITY_EDITOR
-                    EditorUtility.SetDirty(cell.gameObject);
+                        EditorUtility.SetDirty(cell.gameObject);
 #endif
+                    }
                 }
             }
         }
@@ -238,6 +247,7 @@ namespace Runtime.Managers
             if (_itemsList.Contains(item))
             {
                 _itemsList.Remove(item);
+                
                 CheckItemCount();
     
 #if UNITY_EDITOR
@@ -249,6 +259,7 @@ namespace Runtime.Managers
         // 检查物品数量，判断是否完成关卡
         private void CheckItemCount()
         {
+            // Debug.Log("CheckItemCount" + _itemsList.Count);
             if (_itemsList.Count == 0)
             {
                 GameManager.Instance.SetGameStateLevelComplete();

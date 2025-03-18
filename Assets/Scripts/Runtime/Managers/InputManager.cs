@@ -15,10 +15,10 @@ namespace Runtime.Managers
         [SerializeField] private bool isInputBlocked;
         // 主摄像机引用
         private Camera mainCamera;
-    
-        // 触摸事件，允许其他组件订阅触摸事件
-        public static event Action OnTouch;
-    
+        
+        // 触摸抬手事件，允许其他组件订阅触摸事件
+        public static event Action OnTouchEnd;
+
         protected override void Awake()
         {
             // 获取主摄像机引用
@@ -112,14 +112,13 @@ namespace Runtime.Managers
             Ray currentRay = mainCamera.ScreenPointToRay(screenPosition);
             // 更新物品移动
             MovementManager.Instance.UpdateMovement(currentRay);
-            // 触发触摸事件
-            OnTouch?.Invoke();
         }
     
         private void HandleTouchEnd()
         {
             // 通知MovementManager结束移动
             MovementManager.Instance.EndMovement();
+            OnTouchEnd?.Invoke();
         }
     }
 }

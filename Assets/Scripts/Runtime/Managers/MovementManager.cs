@@ -103,7 +103,6 @@ namespace Runtime.Managers
         {
             if (selectedItem == null)
             {
-                Debug.LogError( "selectedItem is null");
                 return;
             }
 
