@@ -42,7 +42,7 @@ namespace Editor
             }
 
             // 保存/加载/重置网格区域标题
-            EditorGUILayout.LabelField("Save/Load/Reset Grid", titleStyle);
+            EditorGUILayout.LabelField("Save｜Load｜Reset Grid", titleStyle);
 
             // 保存提醒
             EditorGUILayout.HelpBox("Don't Forget Save", MessageType.Warning);
@@ -115,9 +115,12 @@ namespace Editor
                     if (GUILayout.Button($"{x}x{y}", GUILayout.Width(levelCreatorScript.gridSize), GUILayout.Height(levelCreatorScript.gridSize)))
                     {
                         // 点击时切换单元格占用状态
-                        levelCreatorScript.ToggleGridOccupancy(x, y);
-                        // 更新单元格颜色
-                        levelCreatorScript.SetGridColor(x, y);
+                        var success = levelCreatorScript.ToggleGridOccupancy(x, y);
+                        if (success)
+                        {
+                            // 更新单元格颜色
+                            levelCreatorScript.SetGridColor(x, y);
+                        }
                     }
 
                     // 单元格之间添加间距
