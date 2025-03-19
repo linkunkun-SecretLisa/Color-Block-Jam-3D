@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Runtime.Data.UnityObject;
 using Runtime.Data.ValueObject;
 using Runtime.Entities;
@@ -30,6 +31,8 @@ namespace Runtime.Utilities
         public GridManager gridManager;  // 网格管理器引用，用于管理网格相关操作
 
         public ItemSize itemSize; // 当前选择的物品尺寸，如1x1, 2x2, 3x2等
+        public TriggerType triggerType; // 当前选择的物品尺寸，如1x1, 2x2, 3x2等
+
         public GameColor gameColor;  // 当前选择的游戏颜色
         private LevelData _currentLevelData;  // 当前正在编辑的关卡数据
 
@@ -72,7 +75,7 @@ namespace Runtime.Utilities
             itemsParentObject = new GameObject("LevelParent");
 
             // 遍历所有网格单元
-            for (int x = 0; x < Width; x++)
+            for (int x = 0; x < Width; x++)//todo:lkk
             {
                 for (int y = 0; y < Height; y++)
                 {
@@ -86,10 +89,19 @@ namespace Runtime.Utilities
                     }
                 }
             }
+            
+            // 生成触发器
+            SpawnBlockTrigger();
 
             // 更新网格管理器中的单元格数据
             gridManager.UpdateCellData(LevelData.levelData);
             Debug.Log("Grid generated.");
+        }
+
+        private void SpawnBlockTrigger()
+        {
+            Debug.LogError("Spawning block trigger.");
+            //todo:lkk 
         }
 
         /// <summary>
@@ -243,14 +255,100 @@ namespace Runtime.Utilities
             {
                 Width = Width,
                 Height = Height,
-                Grids = new GridData[LevelData.levelData.Grids.Length]
+                Grids = new GridData[LevelData.levelData.Grids.Length],
+                Triggers = new Dictionary<string, TriggerData>(LevelData.levelData.Triggers) // 深拷贝触发器数据
             };
 
             // 复制所有网格单元数据
             for (int i = 0; i < LevelData.levelData.Grids.Length; i++)
             {
-                _currentLevelData.Grids[i] = LevelData.levelData.Grids[i];
+                _currentLevelData.Grids[i] = LevelData.levelData.Grids[i]; //结构体 深拷贝 值复制
             }
+        }
+        //设置trigger
+        public bool SetBlockTrigger(int x, int y)
+        {
+            if (this.gameColor == GameColor.None || this.triggerType == TriggerType.None)
+            {
+                Debug.LogError(" gameColor or triggerType is None!");
+                return false;
+            }
+            
+            TriggerType triggerType = this.triggerType;
+            GameColor gameColor = this.gameColor;
+
+            var isColumn = x == -1 || x == Width;
+            var isRow = y == -1 || y == Height;
+            
+            Vector2Int[] offsets = GetOffsetsForTriggerSizeAndRotation(triggerType, x, y);
+
+
+            //
+            if (isColumn)
+            {
+                foreach (var offset in offsets)
+                {
+                    int targetY = y + offset.y;
+                    if (targetY < 0 || targetY >= Height)
+                    {
+#if UNITY_EDITOR
+                        UnityEditor.EditorUtility.DisplayDialog(
+                            "Warning", 
+                            $"放置位置超出网格范围！triggerType: {triggerType}, 位置: ({x}, {y})", 
+                            "确定");
+#endif
+                        Debug.LogWarning($"放置位置超出网格范围！triggerType: {triggerType}, 位置: ({x}, {y})");
+                        return false;
+                    }
+                
+                }
+            }
+            else if (isRow)
+            {
+                foreach (var offset in offsets)
+                {
+                    int targetX = x + offset.x;
+                    if (targetX < 0 || targetX >= Width)
+                    {
+#if UNITY_EDITOR
+                        UnityEditor.EditorUtility.DisplayDialog(
+                            "Warning", 
+                            $"放置位置超出网格范围！triggerType: {triggerType}, 位置: ({x}, {y})", 
+                            "确定");
+#endif
+                        Debug.LogWarning($"放置位置超出网格范围！triggerType: {triggerType}, 位置: ({x}, {y})");
+                        return false;
+                    }
+                
+                }
+            }
+            //先清除之前的trigger，如有
+            foreach (var offset in offsets)
+            {
+                var relatedTrigger = _currentLevelData.GetTrigger(x + offset.x, y + offset.y);
+                if (relatedTrigger.triggerType != TriggerType.None)
+                {
+                    var pos2 = relatedTrigger.position;
+                    var offset2 = GetOffsetsForTriggerSizeAndRotation(relatedTrigger.triggerType, pos2.x, pos2.y);
+                    foreach (var offsetPos in offset2)
+                    {
+                        _currentLevelData.ResetTrigger(pos2.x + offsetPos.x, pos2.y + offsetPos.y);
+                    }
+                }
+            }
+            
+            //再设置现在的trigger
+            foreach (var offset in offsets)
+            {
+                _currentLevelData.SetTrigger(x + offset.x, y + offset.y, new TriggerData()
+                    {
+                        triggerType = triggerType,
+                        gameColor = gameColor,
+                        position = new Vector2Int(x, y),
+                    }
+                );
+            }
+            return true;
         }
 
         /// <summary>
@@ -282,23 +380,15 @@ namespace Runtime.Utilities
                 }
             }
             
-            // 预先检查当前的位置是否已经被占用
+            // 预先检查当前的位置是否已经被占用，如果占用清除当前的方块的所有格子占用
             foreach (var offset in offsets)
             {
                 int targetX = x + offset.x;
                 int targetY = y + offset.y;
                 GridData grid = _currentLevelData.GetGrid(targetX, targetY);
                 if (grid.isOccupied){
-#if UNITY_EDITOR
-                    UnityEditor.EditorUtility.DisplayDialog(
-                        "警告", 
-                        $"位置 ({targetX}, {targetY}) 已经被占用！", 
-                        "确定");
-#endif
-                    Debug.LogWarning($"位置 ({targetX}, {targetY}) 已经被占用！");
-                    return false;
+                    ClearOccupiedGrids(grid);
                 }
-
             }
 
             // 所有位置都在范围内，执行放置
@@ -310,6 +400,7 @@ namespace Runtime.Utilities
                 grid.isOccupied = !grid.isOccupied;
                 grid.gameColor = gameColor;
                 grid.ItemSize = itemSize;
+                grid.ItemPos = new Vector2Int(x, y);
                 _currentLevelData.SetGrid(targetX, targetY, grid);
             }
             
@@ -318,6 +409,72 @@ namespace Runtime.Utilities
             return true;
         }
 
+        private void ClearOccupiedGrids(GridData grid)
+        {
+            Debug.Log("ClearOccupiedGrids: " + grid.ToString());
+            var offsets = GetOffsetsForItemSizeAndRotation(grid.ItemSize);
+            if (!grid.isOccupied || grid.ItemSize == ItemSize.None)
+            {
+                Debug.LogError( "ClearOccupiedGrids: grid is not occupied or item size is none: " + grid.position);
+                return;
+            }
+            var curItemPos = grid.ItemPos;
+            foreach (var offset in offsets)
+            {
+                int targetX = curItemPos.x + offset.x;
+                int targetY = curItemPos.y + offset.y;
+                // 更新两个数据源
+                LevelData.levelData.ResetGrid(targetX, targetY);
+                _currentLevelData.ResetGrid(targetX, targetY);
+            }
+
+        }
+
+        /// <summary>
+        /// 根据Trigger Type获取偏移量数组
+        /// </summary>
+        private Vector2Int[] GetOffsetsForTriggerSizeAndRotation(TriggerType triggerType, int x, int y)
+        {
+            var isColumn = x == -1 || x == Width;
+            switch (triggerType)
+            {
+                case TriggerType.One:  //  trigger 只占用1个格子
+                    return new[] { new Vector2Int(0, 0) };
+                    
+                case TriggerType.Two:  // trigger占用2个格子
+                    
+                    return isColumn ? 
+                        new[]
+                        {
+                            new Vector2Int(0, 0),   // 中心点
+                            new Vector2Int(0, 1),  // 上方
+                            
+                        } :
+                        new[] {
+                            new Vector2Int(0, 0),   // 中心点侧
+                            new Vector2Int(1, 0),    // 右方
+                    };
+                    
+                case TriggerType.Three:  //  trigger占用3个格子
+                    return isColumn ? 
+                        new[]
+                        {
+                            new Vector2Int(0, -1),  // 下方
+                            new Vector2Int(0, 0),   // 中心点
+                            new Vector2Int(0, 1),  // 上方
+                            
+                        } :
+                        new[] {
+                            new Vector2Int(-1, 0),  // 左方
+                            new Vector2Int(0, 0),   // 中心点
+                            new Vector2Int(1, 0)    // 右方
+                        };
+                    
+                default:  // 默认情况下只占用一个格子
+                    return new[] { new Vector2Int(0, 0) };
+            }
+        }
+        
         /// <summary>
         /// 根据物品尺寸获取偏移量数组
         /// </summary>
@@ -382,6 +539,9 @@ namespace Runtime.Utilities
             {
                 LevelData.levelData.Grids[i] = _currentLevelData.Grids[i];
             }
+            
+            // 复制所有触发器数据
+            LevelData.levelData.Triggers = new Dictionary<string, TriggerData>(_currentLevelData.Triggers);
 
             // 更新尺寸信息
             LevelData.levelData.Width = _currentLevelData.Width;
@@ -399,7 +559,7 @@ namespace Runtime.Utilities
         }
 
         /// <summary>
-        /// 重置所有网格数据为初始状态
+        /// 重置所有网格数据为初始状态，并重置触发器数据
         /// </summary>
         public void ResetGridData()
         {
@@ -408,21 +568,17 @@ namespace Runtime.Utilities
             {
                 for (int y = 0; y < Height; y++)
                 {
-                    // 创建空的网格数据
-                    GridData gridData = new GridData
-                    {
-                        isOccupied = false,
-                        gameColor = GameColor.None,
-                        position = new Vector2Int(x, y),
-                        ItemSize = ItemSize.None
-                    };
-                    // 更新两个数据源
-                    LevelData.levelData.SetGrid(x, y, gridData);
-                    _currentLevelData.SetGrid(x, y, gridData);
+                    // 更新两个数据源的网格数据
+                    LevelData.levelData.ResetGrid(x, y);
+                    _currentLevelData.ResetGrid(x, y);
                 }
             }
 
-            Debug.Log("Grid reset.");
+            // 重置触发器数据
+            LevelData.levelData.Triggers.Clear();
+            _currentLevelData.Triggers.Clear();
+
+            Debug.Log("Grid and triggers reset.");
         }
 
         /// <summary>
@@ -430,9 +586,23 @@ namespace Runtime.Utilities
         /// </summary>
         public Color GetGridColor(Vector2Int position)
         {
-            GridData grid = _currentLevelData.GetGrid(position.x, position.y);
+            GridData grid = _currentLevelData.GetGrid(position.x, position.y, true);
             // 如果格子被占用返回对应颜色，否则返回白色
             return grid.isOccupied ? colorData.gameColorsData[(int)grid.gameColor].color : Color.white;
+        }
+        
+        
+        /// <summary>
+        /// 获取指定位置的Trigger网格颜色
+        /// </summary>
+        public Color GetTriggerGridColor(Vector2Int position)
+        {
+            TriggerData trigger = _currentLevelData.GetTrigger(position.x, position.y);
+            if (trigger.triggerType == TriggerType.None)
+            {
+                return Color.white;
+            }
+            return colorData.gameColorsData[(int)trigger.gameColor].color;
         }
 
         /// <summary>
@@ -449,6 +619,16 @@ namespace Runtime.Utilities
                 }
             }
             return Color.white;  // 默认返回白色
+        }
+        
+        /// <summary>
+        /// 设置指定位置的Trigger颜色
+        /// </summary>
+        public void SetTriggerColor(int x, int y)
+        {
+            TriggerData trigger = _currentLevelData.GetTrigger(x, y);
+            trigger.gameColor = gameColor;
+            _currentLevelData.SetTrigger(x, y, trigger);
         }
 
         /// <summary>

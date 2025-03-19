@@ -1,3 +1,4 @@
+using Runtime.Enums;
 using Runtime.Utilities;
 using UnityEditor;
 using UnityEngine;
@@ -98,7 +99,7 @@ namespace Editor
             int columns = levelCreatorScript.GetColumns();
 
             // 从上到下绘制网格（y轴反向遍历，使网格顶部对应y值较大的单元格）
-            for (int y = rows - 1; y >= 0; y--)
+            for (int y = rows ; y >= -1; y--)
             {
                 // 开始水平布局
                 EditorGUILayout.BeginHorizontal();
@@ -106,21 +107,51 @@ namespace Editor
                 GUILayout.FlexibleSpace();
 
                 // 从左到右绘制每一行的单元格
-                for (int x = 0; x < columns; x++)
+                for (int x = -1; x <= columns; x++)
                 {
-                    // 设置单元格颜色
-                    GUI.color = levelCreatorScript.GetGridColor(new Vector2Int(x, y));
 
-                    // 创建可点击的按钮，显示坐标，并设置大小
-                    if (GUILayout.Button($"{x}x{y}", GUILayout.Width(levelCreatorScript.gridSize), GUILayout.Height(levelCreatorScript.gridSize)))
+                    if (y == rows || x == -1 || x == columns || y == -1) //这是边界的trigger 
                     {
-                        // 点击时切换单元格占用状态
-                        var success = levelCreatorScript.ToggleGridOccupancy(x, y);
-                        if (success)
+                        //排除4个角落
+                        if (x == -1 && (y == -1) || (x == levelCreatorScript.Width && y == levelCreatorScript.Height) || (x == -1 && y == levelCreatorScript.Height) || (x == levelCreatorScript.Width && y == -1))
                         {
-                            // 更新单元格颜色
-                            levelCreatorScript.SetGridColor(x, y);
+                            continue;
                         }
+
+                        GUI.color = levelCreatorScript.GetTriggerGridColor(new Vector2Int(x, y));
+                        var width = (x == -1 || x == columns ) ? levelCreatorScript.gridSize / 2 : levelCreatorScript.gridSize;
+                        var height =  (y == -1 || y == rows ) ? levelCreatorScript.gridSize / 2 : levelCreatorScript.gridSize;
+                        // 创建可点击的按钮，显示坐标，并设置大小
+                        if (GUILayout.Button($"", GUILayout.Width(width), GUILayout.Height(height)))
+                        {
+                            // 点击时设置trigger
+                            var success = levelCreatorScript.SetBlockTrigger(x, y);
+                            // if (!success)
+                            // {
+                            //     // 更新单元格颜色
+                            //     levelCreatorScript.SetTriggerColor(x, y);
+                            // }
+                        }
+                    }
+
+                    else
+                    {
+                        // 设置单元格颜色
+
+                        GUI.color = levelCreatorScript.GetGridColor(new Vector2Int(x, y));
+
+                        // 创建可点击的按钮，显示坐标，并设置大小
+                        if (GUILayout.Button($"{x}x{y}", GUILayout.Width(levelCreatorScript.gridSize), GUILayout.Height(levelCreatorScript.gridSize)))
+                        {
+                            // 点击时切换单元格占用状态
+                            var success = levelCreatorScript.ToggleGridOccupancy(x, y);
+                            // if (success)
+                            // {
+                            //     // 更新单元格颜色
+                            //     levelCreatorScript.SetGridColor(x, y);
+                            // }
+                        }
+
                     }
 
                     // 单元格之间添加间距
