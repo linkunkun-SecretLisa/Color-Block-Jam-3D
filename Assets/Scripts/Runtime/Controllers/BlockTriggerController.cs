@@ -23,6 +23,9 @@ namespace Runtime.Controllers
         
         // 触发器接受的最大物品尺寸
         [SerializeField] private ItemSize itemSize;
+
+        // 触发器类型
+        [SerializeField] private TriggerType triggerType;
         
         // 物品销毁时的目标位置
         [SerializeField] private Transform blockDestroyingPosition;

@@ -197,8 +197,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.6814508, y: 1, z: 3.3493557}
-  m_Center: {x: 0.0013709068, y: 0, z: 1.267232}
+  m_Size: {x: 1.6814508, y: 1, z: 1.5064449}
+  m_Center: {x: 0.0013709068, y: 0, z: 0.3457768}
 --- !u!114 &8117698260955088888
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -211,11 +211,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79feaa139d95da945a1e118960eaa0a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  itemsInTrigger: []
   triggerColor: 0
   itemSize: 2
-  itemsInTrigger: []
+  triggerType: 2
   blockDestroyingPosition: {fileID: 5387591283183936798}
   triggerCollider: {fileID: 8497267427339969207}
+  triggerSinkDepth: 0.25
+  triggerAnimationDuration: 0.5
+  itemMoveToDestroyDuration: 0.1
+  itemReturnDuration: 0.2
 --- !u!1 &5496954118491516871
 GameObject:
   m_ObjectHideFlags: 0

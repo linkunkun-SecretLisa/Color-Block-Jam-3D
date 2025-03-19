@@ -5,6 +5,7 @@ using Runtime.Data.ValueObject;
 using Runtime.Enums;
 using Runtime.Utilities;
 using Unity.VisualScripting;
+using Runtime.Data.UnityObject;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -20,6 +21,12 @@ namespace Runtime.Managers
         public int _height;
         // 网格间距修改器，控制格子之间的实际距离
         public float _spaceModifier;
+        // 关卡数据
+        public LevelData _levelData;
+        
+        [Header("References")]
+        // 颜色数据，定义游戏中使用的颜色
+        public CD_GameColor colorData;
     
         // 所有格子的父物体
         [SerializeField] private GameObject cellParent;
@@ -29,6 +36,14 @@ namespace Runtime.Managers
         [SerializeField] private GameObject obstacleParent;
         // 障碍物预制体
         [SerializeField] private GameObject obstaclePrefab;
+        
+        // 触发器预制体
+        [Header("触发器预制体")]
+        [SerializeField] private GameObject triggerOnePrefab;   // 类型1触发器
+        [SerializeField] private GameObject triggerTwoPrefab;   // 类型2触发器
+        [SerializeField] private GameObject triggerThreePrefab; // 类型3触发器
+        // 所有触发器的父物体
+        [SerializeField] private GameObject triggersParent;
         // 网格中所有物品的列表
         [SerializeField] private List<Item> _itemsList = new List<Item>();
         // 网格中所有格子的列表
@@ -42,12 +57,12 @@ namespace Runtime.Managers
         }
     
         // 初始化网格系统
-        public void Initialize(int width, int height, float spaceModifier)
+        public void Initialize(int width, int height, float spaceModifier, LevelData levelData)
         {
             _width = width;
             _height = height;
             _spaceModifier = spaceModifier;
-    
+            _levelData = levelData;
     
             // 标记对象为脏，确保Unity保存更改
     #if UNITY_EDITOR
@@ -87,11 +102,11 @@ namespace Runtime.Managers
             }
     
             // 在网格周围创建障碍物
-            CreateObstaclesAroundGrid();
+            CreateObstaclesAndTriggersAroundGrid();
         }
     
         // 在网格周围创建障碍物
-        private void CreateObstaclesAroundGrid()
+        private void CreateObstaclesAndTriggersAroundGrid()
         {
             // 清除现有的障碍物父物体
             if (obstacleParent != null)
@@ -100,6 +115,18 @@ namespace Runtime.Managers
             }
     
             obstacleParent = new GameObject("ObstacleParent");
+
+            if (triggersParent != null)
+            {
+                DestroyImmediate(triggersParent);
+            }
+
+            //创建新的Triggers
+            triggersParent = new GameObject("Triggers");
+            // 不设置父节点，让它保留在场景根节点
+
+            //记录一下已经创建的trigger根据x y坐标
+            Dictionary<Vector2Int, bool> createdTriggers = new Dictionary<Vector2Int, bool>();
     
             // 在网格边界创建障碍物
             for (int x = -1; x <= _width; x++)
@@ -140,13 +167,50 @@ namespace Runtime.Managers
                     {
                         rotation = Quaternion.Euler(0, 180, 0); // 上边界
                     }
-    
-                    // 创建障碍物
-                    GameObject obstacle = (GameObject)PrefabUtility.InstantiatePrefab(obstaclePrefab, obstacleParent.transform);
-                    obstacle.transform.position = position;
-                    obstacle.transform.rotation = rotation;
-    
-                    EditorUtility.SetDirty(obstacle);
+                    //后缀名
+                    string key = $"{x}_{y}";
+                    // 获取障碍物数据
+                    TriggerData triggerData = _levelData.GetTrigger(x, y);
+                
+                    if (triggerData.triggerType != TriggerType.None)
+                    {
+                        var triggerOriginalPos = triggerData.position;
+                        //如果已经创建过，则跳过
+                        if (createdTriggers.ContainsKey(new Vector2Int(triggerOriginalPos.x, triggerOriginalPos.y)))
+                        {
+                            continue;
+                        }
+                        // 根据触发器类型获取预制体
+                        GameObject prefabToUse = GetTriggerPrefabByType(triggerData.triggerType);
+                        
+                        // 如果预制体为null，记录警告并跳过
+                        if (prefabToUse == null)
+                        {
+                            Debug.LogWarning($"未找到TriggerType为{triggerData.triggerType}的预制体！");
+                            continue;
+                        }
+                        
+                        
+                        GameObject trigger = (GameObject)PrefabUtility.InstantiatePrefab(prefabToUse, triggersParent.transform);
+                        trigger.transform.position = position;
+                        trigger.transform.rotation = rotation;
+                        
+                        // 设置触发器颜色
+                        SetTriggerColor(trigger, triggerData.gameColor);
+                        
+                        EditorUtility.SetDirty(trigger);
+                        //记录一下已经创建的trigger根据x y坐标
+                        createdTriggers.Add(new Vector2Int(triggerOriginalPos.x, triggerOriginalPos.y), true);
+                    }
+                    else
+                    {
+                        // 创建障碍物
+                        GameObject obstacle = (GameObject)PrefabUtility.InstantiatePrefab(obstaclePrefab, obstacleParent.transform);
+                        obstacle.transform.position = position;
+                        obstacle.transform.rotation = rotation;
+                        obstacle.name = obstaclePrefab.name + "_" + x + "x" + y;     
+                        EditorUtility.SetDirty(obstacle);
+                    }
                 }
             }
         }
@@ -295,6 +359,120 @@ namespace Runtime.Managers
             y = Mathf.Clamp(y, 0, _height - 1);
     
             return new Vector2Int(x, y);
+        }
+    
+        // 根据触发器类型获取预制体
+        private GameObject GetTriggerPrefabByType(TriggerType triggerType)
+        {
+            // 使用switch直接返回对应的预制体
+            switch (triggerType)
+            {
+                case TriggerType.One:
+                    if (triggerOnePrefab == null)
+                    {
+                        Debug.LogError("触发器类型One的预制体未分配！请在Inspector中设置");
+                    }
+                    return triggerOnePrefab;
+                case TriggerType.Two:
+                    if (triggerTwoPrefab == null)
+                    {
+                        Debug.LogError("触发器类型Two的预制体未分配！请在Inspector中设置");
+                    }
+                    return triggerTwoPrefab;
+                case TriggerType.Three:
+                    if (triggerThreePrefab == null)
+                    {
+                        Debug.LogError("触发器类型Three的预制体未分配！请在Inspector中设置");
+                    }
+                    return triggerThreePrefab;
+                default:
+                    Debug.LogWarning($"未知的触发器类型: {triggerType}");
+                    return null;
+            }
+        }
+    
+        // 设置触发器颜色
+        private void SetTriggerColor(GameObject triggerObject, GameColor gameColor)
+        {
+            // 检查触发器对象是否为null
+            if (triggerObject == null)
+            {
+                Debug.LogError("触发器对象为null，无法设置颜色");
+                return;
+            }
+            
+            // 如果没有颜色数据或颜色是None，跳过
+            if (colorData == null || gameColor == GameColor.None)
+            {
+                Debug.LogWarning("颜色数据为空或颜色类型为None");
+                return;
+            }
+            
+            // 检查gameColor值是否在有效范围内
+            if ((int)gameColor < 0 || (int)gameColor >= colorData.gameColorsData.Length)
+            {
+                Debug.LogError($"游戏颜色索引{(int)gameColor}超出范围(0-{colorData.gameColorsData.Length-1})");
+                return;
+            }
+            
+            // 获取渲染器组件
+            Renderer renderer = triggerObject.GetComponent<Renderer>();
+            if (renderer == null)
+            {
+                // 如果在父对象上没找到，尝试在子对象中查找
+                renderer = triggerObject.GetComponentInChildren<Renderer>();
+                if (renderer == null)
+                {
+                    Debug.LogWarning($"在触发器{triggerObject.name}上找不到Renderer组件");
+                    return;
+                }
+            }
+            
+            try
+            {
+                // 从颜色数据中获取材质颜色
+                Material material = renderer.sharedMaterial;
+                Material colorMaterial = colorData.gameColorsData[(int)gameColor].materialColor;
+                
+                // 如果有材质颜色，直接应用材质
+                if (colorMaterial != null)
+                {
+                    renderer.sharedMaterial = colorMaterial;
+                }
+                // 否则使用颜色值
+                else
+                {
+                    Color colorToApply = colorData.gameColorsData[(int)gameColor].color;
+                    
+                    // 创建新材质的副本，避免修改原始材质
+                    Material newMaterial = new Material(renderer.sharedMaterial);
+                    
+                    // 设置主颜色
+                    newMaterial.color = colorToApply;
+                    
+                    // 如果使用的是Toony Colors Pro 2着色器，尝试设置其他相关属性
+                    if (newMaterial.HasProperty("_Color"))
+                    {
+                        newMaterial.SetColor("_Color", colorToApply);
+                    }
+                    else if (newMaterial.HasProperty("_BaseColor"))
+                    {
+                        newMaterial.SetColor("_BaseColor", colorToApply);
+                    }
+                    
+                    // 应用新材质
+                    renderer.sharedMaterial = newMaterial;
+                }
+                
+                // 确保修改后的材质被保存
+#if UNITY_EDITOR
+                EditorUtility.SetDirty(renderer.sharedMaterial);
+#endif
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"设置触发器颜色时发生错误: {e.Message}");
+            }
         }
     }
 }

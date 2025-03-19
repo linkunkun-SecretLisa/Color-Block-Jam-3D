@@ -69,10 +69,20 @@ namespace Runtime.Utilities
                 gridManager.ClearItems();
             }
 
+
             // 初始化网格管理器
-            gridManager.Initialize(Width, Height, spaceModifier);
+            gridManager.Initialize(Width, Height, spaceModifier, LevelData.levelData);
+
+            //如果兄弟节点中有LevelParent，则销毁它
+            var existingLevelParent = transform.parent?.Find("LevelParent");
+            if (existingLevelParent != null)
+            {
+                DestroyImmediate(existingLevelParent.gameObject);
+            }
+
             // 创建新的物品父物体
             itemsParentObject = new GameObject("LevelParent");
+
 
             // 遍历所有网格单元
             for (int x = 0; x < Width; x++)//todo:lkk
@@ -89,19 +99,11 @@ namespace Runtime.Utilities
                     }
                 }
             }
-            
-            // 生成触发器
-            SpawnBlockTrigger();
+
 
             // 更新网格管理器中的单元格数据
             gridManager.UpdateCellData(LevelData.levelData);
             Debug.Log("Grid generated.");
-        }
-
-        private void SpawnBlockTrigger()
-        {
-            Debug.LogError("Spawning block trigger.");
-            //todo:lkk 
         }
 
         /// <summary>
@@ -647,31 +649,31 @@ namespace Runtime.Utilities
         private void OnDrawGizmos()
         {
             return;
-            if (_currentLevelData == null) return;
+            // if (_currentLevelData == null) return;
 
-            // 绘制整体网格
-            Gizmos.color = new Color(0.2f, 0.2f, 0.2f, 0.3f); // 浅灰色，低透明度
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    Vector3 pos = GridSpaceToWorldSpace(x, y);
-                    Gizmos.DrawWireCube(pos + new Vector3(0, 0.01f, 0), new Vector3(gridSize * 0.9f, 0.01f, gridSize * 0.9f));
-                }
-            }
+            // // 绘制整体网格
+            // Gizmos.color = new Color(0.2f, 0.2f, 0.2f, 0.3f); // 浅灰色，低透明度
+            // for (int x = 0; x < Width; x++)
+            // {
+            //     for (int y = 0; y < Height; y++)
+            //     {
+            //         Vector3 pos = GridSpaceToWorldSpace(x, y);
+            //         Gizmos.DrawWireCube(pos + new Vector3(0, 0.01f, 0), new Vector3(gridSize * 0.9f, 0.01f, gridSize * 0.9f));
+            //     }
+            // }
 
-            // 绘制当前选中的格子
-            Gizmos.color = new Color(1f, 0f, 0f, 0.4f); // 红色，半透明
-            Vector2Int[] offsets = GetOffsetsForItemSizeAndRotation(itemSize);
-            foreach (var offset in offsets)
-            {
-                Vector3 worldPos = GridSpaceToWorldSpace(offset.x, offset.y);
-                // 绘制线框
-                Gizmos.DrawWireCube(worldPos + new Vector3(0, 0.1f, 0), new Vector3(gridSize * 0.95f, 0.1f, gridSize * 0.95f));
-                // 绘制半透明填充
-                Gizmos.color = new Color(1f, 0.5f, 0.5f, 0.2f); // 浅红色，更低透明度
-                Gizmos.DrawCube(worldPos + new Vector3(0, 0.05f, 0), new Vector3(gridSize * 0.9f, 0.05f, gridSize * 0.9f));
-            }
+            // // 绘制当前选中的格子
+            // Gizmos.color = new Color(1f, 0f, 0f, 0.4f); // 红色，半透明
+            // Vector2Int[] offsets = GetOffsetsForItemSizeAndRotation(itemSize);
+            // foreach (var offset in offsets)
+            // {
+            //     Vector3 worldPos = GridSpaceToWorldSpace(offset.x, offset.y);
+            //     // 绘制线框
+            //     Gizmos.DrawWireCube(worldPos + new Vector3(0, 0.1f, 0), new Vector3(gridSize * 0.95f, 0.1f, gridSize * 0.95f));
+            //     // 绘制半透明填充
+            //     Gizmos.color = new Color(1f, 0.5f, 0.5f, 0.2f); // 浅红色，更低透明度
+            //     Gizmos.DrawCube(worldPos + new Vector3(0, 0.05f, 0), new Vector3(gridSize * 0.9f, 0.05f, gridSize * 0.9f));
+            // }
         }
     }
 }
