@@ -267,6 +267,22 @@ namespace Runtime.Utilities
                 _currentLevelData.Grids[i] = LevelData.levelData.Grids[i]; //结构体 深拷贝 值复制
             }
         }
+
+        /// <summary>
+        /// 判断指定坐标位置是否为列或行边界
+        /// </summary>
+        /// <param name="x">x坐标</param>
+        /// <param name="y">y坐标</param>
+        /// <param name="width">网格宽度</param>
+        /// <param name="height">网格高度</param>
+        /// <returns>返回一个元组,isColumn表示是否为列边界,isRow表示是否为行边界</returns>
+        public static (bool isColumn, bool isRow) GetBoundaryType(int x, int y, int width, int height)
+        {
+            bool isColumn = x == -1 || x == width;
+            bool isRow = y == -1 || y == height;
+            return (isColumn, isRow);
+        }
+
         //设置trigger
         public bool SetBlockTrigger(int x, int y)
         {
@@ -279,8 +295,7 @@ namespace Runtime.Utilities
             TriggerType triggerType = this.triggerType;
             GameColor gameColor = this.gameColor;
 
-            var isColumn = x == -1 || x == Width;
-            var isRow = y == -1 || y == Height;
+            var (isColumn, isRow) = GetBoundaryType(x, y, Width, Height);
             
             Vector2Int[] offsets = GetOffsetsForTriggerSizeAndRotation(triggerType, x, y);
 

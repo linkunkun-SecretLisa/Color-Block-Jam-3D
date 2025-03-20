@@ -150,6 +150,10 @@ namespace Runtime.Managers
     
                     // 计算障碍物位置
                     Vector3 position = GridSpaceToWorldSpace(new Vector2Int(x, y));
+
+
+
+                    // 计算旋转角度
                     Quaternion rotation = Quaternion.identity;
     
                     // 根据位置设置障碍物旋转角度
@@ -192,9 +196,10 @@ namespace Runtime.Managers
                             continue;
                         }
                         
-                        
+                        // 实例化触发器预制体
                         GameObject trigger = (GameObject)PrefabUtility.InstantiatePrefab(prefabToUse, triggersParent.transform);
-                        trigger.transform.position = position;
+                        //调整trigger的位置
+                        trigger.transform.position = GetTriggerPosition(position, triggerOriginalPos, triggerData.triggerType);
                         trigger.transform.rotation = rotation;
                         
                         // 设置触发器颜色
@@ -219,6 +224,38 @@ namespace Runtime.Managers
 #endif
     
         #endregion
+
+        //调整trigger的位置
+        private Vector3 GetTriggerPosition(Vector3 position, Vector2Int triggerOriginalPos, TriggerType triggerType)
+        {
+            Vector3 triggerPosition = position;
+            var (isColumn, isRow) = LevelCreatorScript.GetBoundaryType(triggerOriginalPos.x, triggerOriginalPos.y, _width, _height);
+            if (isRow)
+            {
+                //根据trigger type不同决定偏移
+                if (triggerType == TriggerType.Two)
+                {
+                    triggerPosition.x += 0.5f;
+                }
+                else if (triggerType == TriggerType.Three)
+                {
+                    triggerPosition.x += 1f;
+                }
+            }
+            else if (isColumn)
+            {
+                //根据trigger type不同决定偏移
+                if (triggerType == TriggerType.Two)
+                {
+                    triggerPosition.z += 0.5f;
+                }
+                else if (triggerType == TriggerType.Three)
+                {
+                    triggerPosition.z += 1f;
+                }
+            }
+            return triggerPosition;
+        }
     
         // 根据关卡数据更新格子状态
         public void UpdateCellData(LevelData levelData)
