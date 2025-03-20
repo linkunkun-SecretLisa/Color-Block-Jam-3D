@@ -167,7 +167,7 @@ namespace Runtime.Controllers
         {
             // 从跟踪列表中移除物品
             itemsInTrigger.Remove(blockItem);
-            Debug.Log("itemsInTrigger Remove item " + blockItem.name + ", trigger: " + gameObject.name);
+            // Debug.Log("itemsInTrigger Remove item " + blockItem.name + ", trigger: " + gameObject.name);
 
             // 如果物品正被选中，从网格管理器中移除
             if (MovementManager.Instance.GetSelectedItem() == blockItem)

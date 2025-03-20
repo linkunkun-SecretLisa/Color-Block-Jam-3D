@@ -12,15 +12,10 @@ namespace Runtime.Generators
 {
     /// <summary>
     /// 运行时关卡生成器：专注于游戏运行时快速生成关卡
+    /// 作为LevelManager的辅助工具，负责实际的关卡元素生成
     /// </summary>
     public class RuntimeLevelGenerator : MonoBehaviour
     {
-        [Header("关卡配置")]
-        public CD_LevelData levelData;       // 关卡数据配置
-        public CD_GameColor colorData;       // 颜色数据配置
-        public CD_GamePrefab itemPrefab;     // 物品预制体数据
-        public float gridSpacing = 1f;      // 网格间距
-        
         [Header("预制体引用")]
         public GameObject cellPrefab;        // 格子预制体
         public GameObject obstaclePrefab;    // 障碍物预制体
@@ -29,73 +24,77 @@ namespace Runtime.Generators
         public GameObject triggerThreePrefab; // 触发器3预制体
         
         [Header("生成选项")]
-        public bool generateOnStart = true;  // 是否在Start中自动生成
+        public bool generateItemsAutomatically = true;  // 是否自动生成物品
+        public bool createCellsForGrid = true;          // 是否为网格创建单元格
+        public bool createBoundaries = true;            // 是否创建边界
         
         [Header("引用")]
-        public GridManager gridManager;      // GridManager引用，必须设置
+        [SerializeField] private GridManager gridManager;  // 网格管理器引用
         
-        // 生成的对象的父物体
+        // 父物体引用
         private GameObject _levelParent;     // 所有生成物体的总父物体
         private GameObject _cellParent;      // 格子的父物体
         private GameObject _obstacleParent;  // 障碍物的父物体
         private GameObject _triggerParent;   // 触发器的父物体
         private GameObject _itemParent;      // 物品的父物体
         
-        // 生成的格子列表
+        // 格子列表
         private List<Cell> _cells = new List<Cell>();
         
-        private void Start()
+        private LevelData currentLevelData;     // 当前关卡数据
+        private CD_GameColor colorData;         // 颜色数据
+        private CD_GamePrefab itemPrefab;       // 物品预制体数据
+        private float gridSpacing = 50f;        // 网格间距
+        
+        private void Awake()
         {
-            if (generateOnStart)
+            if (gridManager == null)
             {
-                GenerateLevel();
+                gridManager = GridManager.Instance;
             }
         }
         
         /// <summary>
-        /// 生成整个关卡
+        /// 使用提供的数据生成关卡
         /// </summary>
-        public void GenerateLevel()
+        /// <param name="levelData">关卡数据</param>
+        /// <param name="colorDataAsset">颜色数据资产</param>
+        /// <param name="itemPrefabAsset">物品预制体数据资产</param>
+        /// <param name="spacing">网格间距</param>
+        public void GenerateLevel(LevelData levelData, CD_GameColor colorDataAsset, CD_GamePrefab itemPrefabAsset, float spacing = 1f)
         {
-            if (levelData == null || levelData.levelData == null)
-            {
-                Debug.LogError("无法生成关卡：levelData 未设置!");
-                return;
-            }
+            // 保存参数
+            currentLevelData = levelData;
+            colorData = colorDataAsset;
+            itemPrefab = itemPrefabAsset;
+            gridSpacing = spacing;
             
-            if (gridManager == null)
+            // 验证参数
+            if (!ValidateGeneration())
             {
-                gridManager = FindObjectOfType<GridManager>();
-                if (gridManager == null)
-                {
-                    Debug.LogError("无法生成关卡：未找到GridManager!");
-                    return;
-                }
+                Debug.LogError("关卡生成参数无效，无法生成关卡");
+                return;
             }
             
             // 创建父物体
             CreateParents();
             
-            // 初始化GridManager
-            gridManager._width = levelData.levelData.Width;
-            gridManager._height = levelData.levelData.Height;
-            gridManager._spaceModifier = gridSpacing;
-            gridManager._levelData = levelData.levelData;
+            // 根据设置创建网格和边界
+            if (createCellsForGrid)
+            {
+                CreateGrid();
+            }
             
-            // 生成网格
-            CreateGrid();
+            if (createBoundaries)
+            {
+                CreateBoundaries();
+            }
             
-            // 生成边界障碍物和触发器
-            CreateBoundaries();
-            
-            // 生成游戏物品
-            CreateItems();
-            
-            // 通知GridManager更新
-            gridManager.UpdateCellData(levelData.levelData);
-            
-            // 验证生成是否成功
-            ValidateGeneration();
+            // 生成物品
+            if (generateItemsAutomatically && itemPrefab != null)
+            {
+                CreateItems();
+            }
             
             Debug.Log("关卡生成完成");
         }
@@ -113,16 +112,16 @@ namespace Runtime.Generators
             _levelParent.transform.SetParent(transform);
             
             // 创建其他父物体
-            _cellParent = CreateChild(_levelParent, "CellParent");
-            _obstacleParent = CreateChild(_levelParent, "ObstacleParent");
-            _triggerParent = CreateChild(_levelParent, "TriggerParent");
-            _itemParent = CreateChild(_levelParent, "ItemParent");
+            _cellParent = CreateChildParent(_levelParent, "CellParent");
+            _obstacleParent = CreateChildParent(_levelParent, "ObstacleParent");
+            _triggerParent = CreateChildParent(_levelParent, "TriggerParent");
+            _itemParent = CreateChildParent(_levelParent, "ItemParent");
         }
         
         /// <summary>
         /// 创建子物体
         /// </summary>
-        private GameObject CreateChild(GameObject parent, string name)
+        private GameObject CreateChildParent(GameObject parent, string name)
         {
             GameObject child = new GameObject(name);
             child.transform.SetParent(parent.transform);
@@ -136,12 +135,11 @@ namespace Runtime.Generators
         {
             string[] parentNames = { "LevelParent", "CellParent", "ObstacleParent", "TriggerParent", "ItemParent" };
             
-            foreach (string name in parentNames)
+            foreach (Transform child in transform)
             {
-                GameObject obj = GameObject.Find(name);
-                if (obj != null)
+                if (System.Array.IndexOf(parentNames, child.name) >= 0)
                 {
-                    Destroy(obj);
+                    DestroyImmediate(child.gameObject);
                 }
             }
             
@@ -153,8 +151,8 @@ namespace Runtime.Generators
         /// </summary>
         private void CreateGrid()
         {
-            int width = levelData.levelData.Width;
-            int height = levelData.levelData.Height;
+            int width = currentLevelData.Width;
+            int height = currentLevelData.Height;
             
             // 清除GridManager中现有的cells
             gridManager.GetCells().Clear();
@@ -173,7 +171,7 @@ namespace Runtime.Generators
                     Cell cell = cellObject.GetComponent<Cell>();
                     if (cell != null)
                     {
-                        GridData gridData = levelData.levelData.GetGrid(x, y);
+                        GridData gridData = currentLevelData.GetGrid(x, y);
                         cell.Init(new Vector2Int(x, y), gridData.isOccupied);
                         _cells.Add(cell);
                         
@@ -192,8 +190,8 @@ namespace Runtime.Generators
         /// </summary>
         private void CreateBoundaries()
         {
-            int width = levelData.levelData.Width;
-            int height = levelData.levelData.Height;
+            int width = currentLevelData.Width;
+            int height = currentLevelData.Height;
             
             // 用于跟踪已创建的触发器
             Dictionary<Vector2Int, bool> createdTriggers = new Dictionary<Vector2Int, bool>();
@@ -216,7 +214,7 @@ namespace Runtime.Generators
                     Quaternion rotation = LevelGenerationUtility.GetBoundaryRotation(x, y, width, height);
                     
                     // 获取触发器数据
-                    TriggerData triggerData = levelData.levelData.GetTrigger(x, y);
+                    TriggerData triggerData = currentLevelData.GetTrigger(x, y);
                     
                     if (triggerData.triggerType != TriggerType.None)
                     {
@@ -261,14 +259,14 @@ namespace Runtime.Generators
         /// </summary>
         private void CreateItems()
         {
-            int width = levelData.levelData.Width;
-            int height = levelData.levelData.Height;
+            int width = currentLevelData.Width;
+            int height = currentLevelData.Height;
             
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
-                    GridData gridData = levelData.levelData.GetGrid(x, y);
+                    GridData gridData = currentLevelData.GetGrid(x, y);
                     
                     // 检查是否需要生成物品
                     if (gridData.isOccupied && gridData.gameColor != GameColor.None && gridData.ItemSize != ItemSize.None)
@@ -365,38 +363,38 @@ namespace Runtime.Generators
         }
         
         /// <summary>
-        /// 验证生成是否成功
+        /// 验证生成所需的参数是否有效
         /// </summary>
-        private void ValidateGeneration()
+        private bool ValidateGeneration()
         {
-            // 检查GridManager中Cell数量是否正确
-            int expectedCellCount = levelData.levelData.Width * levelData.levelData.Height;
-            if (gridManager.GetCells().Count != expectedCellCount)
+            if (currentLevelData == null)
             {
-                Debug.LogWarning($"生成警告: GridManager中Cell数量({gridManager.GetCells().Count})与预期({expectedCellCount})不符");
+                Debug.LogError("缺失关卡数据");
+                return false;
             }
             
-            // 检查GridManager中是否有空Cell
-            for (int i = 0; i < gridManager.GetCells().Count; i++)
-            { 
-                if (gridManager.GetCells()[i] == null)
+            if (colorData == null)
+            {
+                Debug.LogWarning("缺失颜色数据，使用默认颜色");
+            }
+            
+            if (generateItemsAutomatically && itemPrefab == null)
+            {
+                Debug.LogError("启用了自动生成物品，但缺失物品预制体数据");
+                return false;
+            }
+            
+            if (gridManager == null)
+            {
+                gridManager = GridManager.Instance;
+                if (gridManager == null)
                 {
-                    Debug.LogWarning($"生成警告: GridManager中第{i}个Cell为空");
+                    Debug.LogError("找不到GridManager实例");
+                    return false;
                 }
             }
             
-            // 在检查Item之前先移除所有空Item
-            var itemList = gridManager.GetItems();
-            itemList.RemoveAll(item => item == null);
-            
-            // 检查GridManager中是否有空Item
-            for (int i = 0; i < gridManager.GetItems().Count; i++)
-            {
-                if (gridManager.GetItems()[i] == null)
-                {
-                    Debug.LogWarning($"生成警告: GridManager中第{i}个Item为空");
-                }
-            }
+            return true;
         }
     }
 } 

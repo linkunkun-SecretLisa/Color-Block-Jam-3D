@@ -23,9 +23,15 @@ namespace Runtime.Managers
         [Header("Private's")] 
         private Tween coinTween;
 
+        [SerializeField] private LevelManager levelManager;
 
         private void Start()
         {
+            if (levelManager == null)
+            {
+                levelManager = FindObjectOfType<LevelManager>();
+            }
+            
             CheckRemoteConfig();
             AddListeners();
             UpdateCoinText();
@@ -67,7 +73,7 @@ namespace Runtime.Managers
 
         private void OnRestartLevelButtonClicked()
         {
-            LevelManager.Instance.RestartLevel();
+            levelManager.RestartLevel();
         }
 
         private void RemoveListeners()

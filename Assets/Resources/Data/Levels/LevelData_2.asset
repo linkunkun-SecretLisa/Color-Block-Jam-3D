@@ -10,109 +10,148 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9bc6e4cd06a24f9d94c7ce7cc6256139, type: 3}
-  m_Name: Level 3 clone
+  m_Name: LevelData_2
   m_EditorClassIdentifier: 
   levelData:
     Width: 5
     Height: 5
     Grids:
     - isOccupied: 0
-      gameColor: 2
-      ItemSize: 1
+      gameColor: 0
+      ItemSize: 0
       position: {x: 0, y: 0}
+      ItemPos: {x: 0, y: 0}
     - isOccupied: 0
       gameColor: 0
       ItemSize: 0
       position: {x: 1, y: 0}
-    - isOccupied: 0
-      gameColor: 0
-      ItemSize: 0
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 1
+      gameColor: 1
+      ItemSize: 1
       position: {x: 2, y: 0}
+      ItemPos: {x: 2, y: 0}
     - isOccupied: 0
       gameColor: 0
       ItemSize: 0
       position: {x: 3, y: 0}
+      ItemPos: {x: 0, y: 0}
     - isOccupied: 0
       gameColor: 0
       ItemSize: 0
       position: {x: 4, y: 0}
+      ItemPos: {x: 0, y: 0}
     - isOccupied: 0
       gameColor: 0
       ItemSize: 0
       position: {x: 0, y: 1}
+      ItemPos: {x: 0, y: 0}
     - isOccupied: 0
       gameColor: 0
       ItemSize: 0
       position: {x: 1, y: 1}
-    - isOccupied: 0
-      gameColor: 0
-      ItemSize: 0
-      position: {x: 2, y: 1}
+      ItemPos: {x: 0, y: 0}
     - isOccupied: 1
       gameColor: 1
       ItemSize: 1
+      position: {x: 2, y: 1}
+      ItemPos: {x: 2, y: 1}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
       position: {x: 3, y: 1}
+      ItemPos: {x: 0, y: 0}
     - isOccupied: 0
       gameColor: 0
       ItemSize: 0
       position: {x: 4, y: 1}
-    - isOccupied: 1
-      gameColor: 1
-      ItemSize: 1
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
       position: {x: 0, y: 2}
-    - isOccupied: 1
-      gameColor: 1
-      ItemSize: 1
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
       position: {x: 1, y: 2}
+      ItemPos: {x: 0, y: 0}
     - isOccupied: 1
       gameColor: 1
       ItemSize: 1
       position: {x: 2, y: 2}
+      ItemPos: {x: 2, y: 2}
     - isOccupied: 0
       gameColor: 0
       ItemSize: 0
       position: {x: 3, y: 2}
+      ItemPos: {x: 0, y: 0}
     - isOccupied: 0
       gameColor: 0
       ItemSize: 0
       position: {x: 4, y: 2}
-    - isOccupied: 1
-      gameColor: 1
-      ItemSize: 1
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
       position: {x: 0, y: 3}
-    - isOccupied: 1
-      gameColor: 1
-      ItemSize: 1
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
       position: {x: 1, y: 3}
+      ItemPos: {x: 0, y: 0}
     - isOccupied: 1
       gameColor: 1
       ItemSize: 1
       position: {x: 2, y: 3}
+      ItemPos: {x: 2, y: 3}
     - isOccupied: 0
       gameColor: 0
       ItemSize: 0
       position: {x: 3, y: 3}
+      ItemPos: {x: 0, y: 0}
     - isOccupied: 0
       gameColor: 0
       ItemSize: 0
       position: {x: 4, y: 3}
-    - isOccupied: 1
-      gameColor: 1
-      ItemSize: 1
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
       position: {x: 0, y: 4}
-    - isOccupied: 1
-      gameColor: 1
-      ItemSize: 1
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
       position: {x: 1, y: 4}
+      ItemPos: {x: 0, y: 0}
     - isOccupied: 1
       gameColor: 1
       ItemSize: 1
       position: {x: 2, y: 4}
+      ItemPos: {x: 2, y: 4}
     - isOccupied: 0
       gameColor: 0
       ItemSize: 0
       position: {x: 3, y: 4}
+      ItemPos: {x: 0, y: 0}
     - isOccupied: 0
       gameColor: 0
       ItemSize: 0
       position: {x: 4, y: 4}
+      ItemPos: {x: 0, y: 0}
+    triggerKeys:
+    - -1_2
+    - -1_1
+    - -1_0
+    triggerValues:
+    - gameColor: 1
+      triggerType: 1
+      position: {x: -1, y: 2}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: -1, y: 1}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: -1, y: 0}

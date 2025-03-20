@@ -12,9 +12,10 @@ namespace Runtime.Managers
         public void SetGameStateLevelComplete()
         {
             GameStates = GameStates.LevelComplete;
-            Debug.Log("Level Completed");
+            Debug.Log("Level Completed :  " + LevelManager.Instance.CurrentLevelIndex) ;
             CurrencyManager.Instance.IncressCoinAmount();
             TimerManager.Instance.StopTimer();
+            LevelManager.Instance.GoToLevel(LevelManager.Instance.CurrentLevelIndex + 1);
         }
 
         public void SetGameStateLevelFail()
