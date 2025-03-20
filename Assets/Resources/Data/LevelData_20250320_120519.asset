@@ -1,0 +1,225 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bc6e4cd06a24f9d94c7ce7cc6256139, type: 3}
+  m_Name: LevelData_20250320_120519
+  m_EditorClassIdentifier: 
+  levelData:
+    Width: 5
+    Height: 5
+    Grids:
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
+      position: {x: 0, y: 0}
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
+      position: {x: 1, y: 0}
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
+      position: {x: 2, y: 0}
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
+      position: {x: 3, y: 0}
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
+      position: {x: 4, y: 0}
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
+      position: {x: 0, y: 1}
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 1
+      gameColor: 1
+      ItemSize: 1
+      position: {x: 1, y: 1}
+      ItemPos: {x: 1, y: 1}
+    - isOccupied: 1
+      gameColor: 1
+      ItemSize: 1
+      position: {x: 2, y: 1}
+      ItemPos: {x: 2, y: 1}
+    - isOccupied: 1
+      gameColor: 1
+      ItemSize: 1
+      position: {x: 3, y: 1}
+      ItemPos: {x: 3, y: 1}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
+      position: {x: 4, y: 1}
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
+      position: {x: 0, y: 2}
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 1
+      gameColor: 1
+      ItemSize: 1
+      position: {x: 1, y: 2}
+      ItemPos: {x: 1, y: 2}
+    - isOccupied: 1
+      gameColor: 1
+      ItemSize: 1
+      position: {x: 2, y: 2}
+      ItemPos: {x: 2, y: 2}
+    - isOccupied: 1
+      gameColor: 1
+      ItemSize: 1
+      position: {x: 3, y: 2}
+      ItemPos: {x: 3, y: 2}
+    - isOccupied: 1
+      gameColor: 1
+      ItemSize: 1
+      position: {x: 4, y: 2}
+      ItemPos: {x: 4, y: 2}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
+      position: {x: 0, y: 3}
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 1
+      gameColor: 1
+      ItemSize: 1
+      position: {x: 1, y: 3}
+      ItemPos: {x: 1, y: 3}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
+      position: {x: 2, y: 3}
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 1
+      gameColor: 1
+      ItemSize: 1
+      position: {x: 3, y: 3}
+      ItemPos: {x: 3, y: 3}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
+      position: {x: 4, y: 3}
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
+      position: {x: 0, y: 4}
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
+      position: {x: 1, y: 4}
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
+      position: {x: 2, y: 4}
+      ItemPos: {x: 0, y: 0}
+    - isOccupied: 1
+      gameColor: 1
+      ItemSize: 1
+      position: {x: 3, y: 4}
+      ItemPos: {x: 3, y: 4}
+    - isOccupied: 0
+      gameColor: 0
+      ItemSize: 0
+      position: {x: 4, y: 4}
+      ItemPos: {x: 0, y: 0}
+    triggerKeys:
+    - 5_3
+    - 5_0
+    - 5_2
+    - 5_1
+    - 5_4
+    - 4_5
+    - 3_5
+    - 2_5
+    - 1_5
+    - 0_5
+    - -1_4
+    - -1_3
+    - -1_2
+    - -1_1
+    - -1_0
+    - 0_-1
+    - 1_-1
+    - 3_-1
+    - 2_-1
+    - 4_-1
+    triggerValues:
+    - gameColor: 1
+      triggerType: 1
+      position: {x: 5, y: 3}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: 5, y: 0}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: 5, y: 2}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: 5, y: 1}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: 5, y: 4}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: 4, y: 5}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: 3, y: 5}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: 2, y: 5}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: 1, y: 5}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: 0, y: 5}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: -1, y: 4}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: -1, y: 3}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: -1, y: 2}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: -1, y: 1}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: -1, y: 0}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: 0, y: -1}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: 1, y: -1}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: 3, y: -1}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: 2, y: -1}
+    - gameColor: 1
+      triggerType: 1
+      position: {x: 4, y: -1}
