@@ -45,8 +45,27 @@ namespace Runtime.Utilities
             // 检查LevelData是否已分配
             if (LevelData == null)
             {
-                Debug.LogError("LevelData is not assigned in the inspector!");
-                return;
+                Debug.Log("LevelData is not assigned, creating a new one...");
+                LevelData = ScriptableObject.CreateInstance<CD_LevelData>();
+                
+#if UNITY_EDITOR
+                // 确保目录存在
+                if (!System.IO.Directory.Exists("Assets/Resources/Data/Levels"))
+                {
+                    System.IO.Directory.CreateDirectory("Assets/Resources/Data/Levels");
+                }
+                
+                // 使用时间戳创建唯一文件名
+                string fileName = $"LevelData_{System.DateTime.Now.ToString("yyyyMMdd_HHmmss")}.asset";
+                string assetPath = $"Assets/Resources/Data/Levels/{fileName}";
+                
+                // 创建并保存资产
+                UnityEditor.AssetDatabase.CreateAsset(LevelData, assetPath);
+                UnityEditor.AssetDatabase.SaveAssets();
+                UnityEditor.AssetDatabase.Refresh();
+                
+                Debug.Log($"已创建并保存LevelData资产到: {assetPath}");
+#endif
             }
 
             // 如果LevelData中没有数据，创建新的
@@ -281,7 +300,6 @@ namespace Runtime.Utilities
                 Width = Width,
                 Height = Height,
                 Grids = new GridData[LevelData.levelData.Grids.Length],
-                Triggers = new Dictionary<string, TriggerData>(LevelData.levelData.Triggers) // 深拷贝触发器数据
             };
 
             // 复制所有网格单元数据
@@ -581,11 +599,19 @@ namespace Runtime.Utilities
             }
             
             // 复制所有触发器数据
-            LevelData.levelData.Triggers = new Dictionary<string, TriggerData>(_currentLevelData.Triggers);
+            LevelData.levelData.SetAllTriggers(_currentLevelData.GetAllTriggers());
 
             // 更新尺寸信息
             LevelData.levelData.Width = _currentLevelData.Width;
             LevelData.levelData.Height = _currentLevelData.Height;
+            
+#if UNITY_EDITOR
+            // 标记为已修改，确保Unity保存更改
+            UnityEditor.EditorUtility.SetDirty(LevelData);
+            // 保存所有资产变更到磁盘
+            UnityEditor.AssetDatabase.SaveAssets();
+#endif
+            
             Debug.Log("Level data saved.");
         }
 
@@ -615,8 +641,8 @@ namespace Runtime.Utilities
             }
 
             // 重置触发器数据
-            LevelData.levelData.Triggers.Clear();
-            _currentLevelData.Triggers.Clear();
+            LevelData.levelData.SetAllTriggers(new Dictionary<string, TriggerData>());
+            _currentLevelData.SetAllTriggers(new Dictionary<string, TriggerData>());    
 
             Debug.Log("Grid and triggers reset.");
         }
