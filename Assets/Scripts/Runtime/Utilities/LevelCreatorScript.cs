@@ -37,6 +37,10 @@ namespace Runtime.Utilities
         public GameColor gameColor;  // 当前选择的游戏颜色
         private LevelData _currentLevelData;  // 当前正在编辑的关卡数据
 
+        [Header("Auto Generation")]
+        public bool autoGenerateOnLoad = false;  // 是否在加载时自动生成关卡
+        public bool isEditorOnly = true;  // 是否仅在编辑器模式下使用
+
         /// <summary>
         /// 当脚本启用时初始化关卡数据
         /// </summary>
@@ -738,6 +742,52 @@ namespace Runtime.Utilities
             //     Gizmos.color = new Color(1f, 0.5f, 0.5f, 0.2f); // 浅红色，更低透明度
             //     Gizmos.DrawCube(worldPos + new Vector3(0, 0.05f, 0), new Vector3(gridSize * 0.9f, 0.05f, gridSize * 0.9f));
             // }
+        }
+
+        /// <summary>
+        /// 游戏开始时执行，处理运行时组件状态
+        /// </summary>
+        private void Start()
+        {
+            // 如果设置为仅编辑器模式且当前在运行时，禁用此组件
+            if (isEditorOnly && Application.isPlaying)
+            {
+                // 如果设置了自动生成，先生成关卡再禁用
+                if (autoGenerateOnLoad)
+                {
+                    GenerateLevelData();
+                }
+                
+                this.enabled = false;
+            }
+            // 如果不是仅编辑器模式且设置了自动生成，在运行时也生成关卡
+            else if (autoGenerateOnLoad && Application.isPlaying)
+            {
+                GenerateLevelData();
+            }
+        }
+
+        /// <summary>
+        /// 当脚本禁用或场景关闭时进行清理
+        /// </summary>
+        private void OnDisable()
+        {
+            // 仅在非运行时进行清理，运行时让Unity自己处理
+            if (!Application.isPlaying)
+            {
+                CleanUpGameObjects();
+            }
+        }
+        
+        /// <summary>
+        /// 清理创建的游戏对象
+        /// </summary>
+        private void CleanUpGameObjects()
+        {
+            if (itemsParentObject != null)
+            {
+                DestroyImmediate(itemsParentObject);
+            }
         }
     }
 }

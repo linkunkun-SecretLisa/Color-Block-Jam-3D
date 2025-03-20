@@ -108,7 +108,7 @@ namespace Runtime.Managers
         {
             // 清除现有的障碍物父物体
             var obstacleParent = LevelCreatorScript.DestroyAndCreateNewGameObjectByName("ObstacleParent");
-            var triggersParent = LevelCreatorScript.DestroyAndCreateNewGameObjectByName("Triggers");
+            var triggersParent = LevelCreatorScript.DestroyAndCreateNewGameObjectByName("TriggerParent");
 
             //记录一下已经创建的trigger根据x y坐标
             Dictionary<Vector2Int, bool> createdTriggers = new Dictionary<Vector2Int, bool>();
