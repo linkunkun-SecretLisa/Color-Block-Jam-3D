@@ -25,17 +25,14 @@ namespace Runtime.Managers
         public float _spaceModifier;
         // 关卡数据
         public LevelData _levelData;
-        
+        // 所有格子的父物体
+        [SerializeField] private GameObject cellParent;
         [Header("References")]
         // 颜色数据，定义游戏中使用的颜色
         public CD_GameColor colorData;
     
-        // 所有格子的父物体
-        [SerializeField] private GameObject cellParent;
         // 格子预制体
         [SerializeField] private GameObject cellPrefab;
-        // 所有障碍物的父物体
-        [SerializeField] private GameObject obstacleParent;
         // 障碍物预制体
         [SerializeField] private GameObject obstaclePrefab;
         
@@ -45,7 +42,6 @@ namespace Runtime.Managers
         [SerializeField] private GameObject triggerTwoPrefab;   // 类型2触发器
         [SerializeField] private GameObject triggerThreePrefab; // 类型3触发器
         // 所有触发器的父物体
-        [SerializeField] private GameObject triggersParent;
         // 网格中所有物品的列表
         [SerializeField] private List<Item> _itemsList = new List<Item>();
         // 网格中所有格子的列表
@@ -111,21 +107,8 @@ namespace Runtime.Managers
         private void CreateObstaclesAndTriggersAroundGrid()
         {
             // 清除现有的障碍物父物体
-            if (obstacleParent != null)
-            {
-                DestroyImmediate(obstacleParent);
-            }
-    
-            obstacleParent = new GameObject("ObstacleParent");
-
-            if (triggersParent != null)
-            {
-                DestroyImmediate(triggersParent);
-            }
-
-            //创建新的Triggers
-            triggersParent = new GameObject("Triggers");
-            // 不设置父节点，让它保留在场景根节点
+            var obstacleParent = LevelCreatorScript.DestroyAndCreateNewGameObjectByName("ObstacleParent");
+            var triggersParent = LevelCreatorScript.DestroyAndCreateNewGameObjectByName("Triggers");
 
             //记录一下已经创建的trigger根据x y坐标
             Dictionary<Vector2Int, bool> createdTriggers = new Dictionary<Vector2Int, bool>();
@@ -287,12 +270,8 @@ namespace Runtime.Managers
         // 清除所有格子
         private void ClearCells()
         {
-            if (cellParent != null)
-            {
-                DestroyImmediate(cellParent);
-            }
-    
-            cellParent = new GameObject("CellParent");
+            // 所有格子的父物体
+            cellParent = LevelCreatorScript.DestroyAndCreateNewGameObjectByName("CellParent");    
             _cells.Clear();
         }
     

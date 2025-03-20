@@ -8,6 +8,7 @@ using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;  // 仅在Unity编辑器模式下引入编辑器相关功能
 #endif
+using System.Linq;
 
 namespace Runtime.Utilities
 {
@@ -58,6 +59,31 @@ namespace Runtime.Utilities
         }
 
         /// <summary>
+        /// 销毁场景中指定名称的根级游戏对象
+        /// </summary>
+        /// <param name="objectName">要销毁的游戏对象名称</param>
+        /// <returns>销毁的游戏对象数量</returns>
+        public static GameObject DestroyAndCreateNewGameObjectByName(string objectName, bool createNew = true)
+        {
+            GameObject[] objects = GameObject.FindObjectsOfType<GameObject>().Where(go => go.name == objectName || go.name.StartsWith(objectName + " (")).ToArray();
+            
+            if (objects.Length > 0)
+            {
+                Debug.Log($"找到{objects.Length}个名为\"{objectName}\"的游戏对象，正在销毁...");
+                foreach (var obj in objects)
+                {
+                    DestroyImmediate(obj);
+                }
+            }
+            if (createNew)
+            {
+                GameObject newObject = new GameObject(objectName);
+                return newObject;
+            }
+            return null;
+        }
+
+        /// <summary>
         /// 根据当前设置生成关卡数据和游戏物体
         /// </summary>
         public void GenerateLevelData()
@@ -73,16 +99,13 @@ namespace Runtime.Utilities
             // 初始化网格管理器
             gridManager.Initialize(Width, Height, spaceModifier, LevelData.levelData);
 
-            //如果兄弟节点中有LevelParent，则销毁它
-            var existingLevelParent = transform.parent?.Find("LevelParent");
-            if (existingLevelParent != null)
-            {
-                DestroyImmediate(existingLevelParent.gameObject);
-            }
-
             // 创建新的物品父物体
-            itemsParentObject = new GameObject("LevelParent");
-
+            itemsParentObject = DestroyAndCreateNewGameObjectByName("LevelParent");
+            
+            // 确保新创建的父物体被保存
+#if UNITY_EDITOR
+            EditorUtility.SetDirty(itemsParentObject);
+#endif
 
             // 遍历所有网格单元
             for (int x = 0; x < Width; x++)//todo:lkk
