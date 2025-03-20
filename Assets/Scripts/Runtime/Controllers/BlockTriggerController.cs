@@ -21,6 +21,13 @@ namespace Runtime.Controllers
         // 触发器对应的颜色（只接受此颜色的物品）
         [SerializeField] private GameColor triggerColor;
         
+        // TriggerColor属性，提供外部访问和修改triggerColor的接口
+        public GameColor TriggerColor
+        {
+            get { return triggerColor; }
+            set { triggerColor = value; }
+        }
+        
         // 触发器接受的最大物品尺寸
         [SerializeField] private ItemSize itemSize;
 

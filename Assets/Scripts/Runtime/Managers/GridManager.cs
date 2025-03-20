@@ -6,6 +6,8 @@ using Runtime.Enums;
 using Runtime.Utilities;
 using Unity.VisualScripting;
 using Runtime.Data.UnityObject;
+using Runtime.Controllers;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -414,6 +416,10 @@ namespace Runtime.Managers
                 Debug.LogError($"游戏颜色索引{(int)gameColor}超出范围(0-{colorData.gameColorsData.Length-1})");
                 return;
             }
+
+            //改变TriggerColor
+            BlockTriggerController triggerController = triggerObject.GetComponent<BlockTriggerController>();
+            triggerController.TriggerColor = gameColor;
             
             // 获取渲染器组件
             Renderer renderer = triggerObject.GetComponent<Renderer>();
