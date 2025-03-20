@@ -186,6 +186,13 @@ namespace Runtime.Controllers
                     // 确保物品不再被选中
                     MovementManager.Instance.SetSelectedItem(null);
                     
+                    // 检查物品是否已被销毁
+                    if (blockItem == null) 
+                    {
+                        BackToTheOriginalPosition();
+                        return;
+                    }
+                    
                     // 物品移动,网格对齐
                     var gridPos = GridManager.Instance.WorldSpaceToGridSpace(blockItem.transform.position);
                     var alignPos = GridManager.Instance.GridSpaceToWorldSpace(gridPos);
@@ -193,6 +200,13 @@ namespace Runtime.Controllers
                        .SetEase(Ease.Linear)
                         .OnComplete(() =>
                         {
+                            // 检查物品是否已被销毁
+                            if (blockItem == null) 
+                            {
+                                BackToTheOriginalPosition();
+                                return;
+                            }
+                            
                             // 物品往触发器方向移动
                             var exitDirection = DetermineExitDirection(blockItem.transform);
                             var targetPos = blockItem.transform.position + exitDirection * (int)blockItem.itemSize;
@@ -200,9 +214,12 @@ namespace Runtime.Controllers
                                 .SetEase(Ease.Linear)
                                 .OnComplete(() =>
                                 {
-                                    // 销毁物品并恢复触发器位置
-                                    GridManager.Instance.RemoveItem(blockItem);
-                                    Destroy(blockItem.gameObject); //todo: 销毁动画
+                                    // 在销毁物品前先从网格移除
+                                    if (blockItem != null)
+                                    {
+                                        GridManager.Instance.RemoveItem(blockItem);
+                                        Destroy(blockItem.gameObject); //todo: 销毁动画
+                                    }
 
                                     BackToTheOriginalPosition();
                                 });

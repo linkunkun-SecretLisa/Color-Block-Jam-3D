@@ -6,6 +6,7 @@ using Runtime.Enums;
 using Runtime.Entities;
 using Runtime.Controllers;
 using Runtime.Managers;
+using Runtime.Utilities;
 
 namespace Runtime.Generators
 {
@@ -162,7 +163,7 @@ namespace Runtime.Generators
             {
                 for (int y = 0; y < height; y++)
                 {
-                    Vector3 position = GridToWorld(x, y);
+                    Vector3 position = LevelGenerationUtility.GridToWorld(x, y, gridSpacing);
                     
                     // 实例化格子
                     GameObject cellObject = Instantiate(cellPrefab, position, Quaternion.identity, _cellParent.transform);
@@ -211,8 +212,8 @@ namespace Runtime.Generators
                     }
                     
                     // 计算位置和旋转
-                    Vector3 position = GridToWorld(x, y);
-                    Quaternion rotation = GetBoundaryRotation(x, y, width, height);
+                    Vector3 position = LevelGenerationUtility.GridToWorld(x, y, gridSpacing);
+                    Quaternion rotation = LevelGenerationUtility.GetBoundaryRotation(x, y, width, height);
                     
                     // 获取触发器数据
                     TriggerData triggerData = levelData.levelData.GetTrigger(x, y);
@@ -233,14 +234,14 @@ namespace Runtime.Generators
                         if (prefab == null) continue;
                         
                         // 计算触发器位置
-                        Vector3 triggerPosition = GetTriggerPosition(position, triggerPos, triggerData.triggerType, width, height);
+                        Vector3 triggerPosition = LevelGenerationUtility.GetTriggerPosition(position, triggerPos, triggerData.triggerType, width, height, gridSpacing);
                         
                         // 实例化触发器
                         GameObject trigger = Instantiate(prefab, triggerPosition, rotation, _triggerParent.transform);
                         trigger.name = $"Trigger_{triggerData.triggerType}_{x}x{y}";
                         
                         // 设置触发器颜色
-                        SetTriggerColor(trigger, triggerData.gameColor);
+                        LevelGenerationUtility.SetTriggerColor(trigger, triggerData.gameColor, colorData);
                         
                         // 记录已创建
                         createdTriggers.Add(new Vector2Int(triggerPos.x, triggerPos.y), true);
@@ -275,7 +276,7 @@ namespace Runtime.Generators
                         // 检查是否是物品的主位置
                         if (gridData.position.x == x && gridData.position.y == y)
                         {
-                            Vector3 position = GridToWorld(x, y);
+                            Vector3 position = LevelGenerationUtility.GridToWorld(x, y, gridSpacing);
                             SpawnItem(gridData, position);
                         }
                     }
@@ -325,16 +326,7 @@ namespace Runtime.Generators
         /// </summary>
         private Quaternion GetBoundaryRotation(int x, int y, int width, int height)
         {
-            if (x == -1) // 左边界
-                return Quaternion.Euler(0, 90, 0);
-            if (x == width) // 右边界
-                return Quaternion.Euler(0, -90, 0);
-            if (y == -1) // 下边界
-                return Quaternion.Euler(0, 0, 0);
-            if (y == height) // 上边界
-                return Quaternion.Euler(0, 180, 0);
-                
-            return Quaternion.identity;
+            return LevelGenerationUtility.GetBoundaryRotation(x, y, width, height);
         }
         
         /// <summary>
@@ -357,101 +349,11 @@ namespace Runtime.Generators
         }
         
         /// <summary>
-        /// 计算触发器位置
-        /// </summary>
-        private Vector3 GetTriggerPosition(Vector3 position, Vector2Int originalPos, TriggerType type, int width, int height)
-        {
-            Vector3 result = position;
-            
-            // 判断是边界的哪一侧
-            bool isColumn = originalPos.x == -1 || originalPos.x == width;
-            
-            // 根据触发器类型调整位置
-            if (isColumn)
-            {
-                // 竖边界上的触发器
-                if (type == TriggerType.Two)
-                    result.z += 0.5f * gridSpacing;
-                else if (type == TriggerType.Three)
-                    result.z += 1.0f * gridSpacing;
-            }
-            else
-            {
-                // 横边界上的触发器
-                if (type == TriggerType.Two)
-                    result.x += 0.5f * gridSpacing;
-                else if (type == TriggerType.Three)
-                    result.x += 1.0f * gridSpacing;
-            }
-            
-            return result;
-        }
-        
-        /// <summary>
-        /// 设置触发器颜色
-        /// </summary>
-        private void SetTriggerColor(GameObject trigger, GameColor gameColor)
-        {
-            // 检查是否有颜色数据
-            if (colorData == null)
-            {
-                Debug.LogWarning("颜色数据未设置，无法设置触发器颜色");
-                return;
-            }
-            
-            // 获取触发器控制器
-            BlockTriggerController controller = trigger.GetComponent<BlockTriggerController>();
-            if (controller != null)
-            {
-                controller.TriggerColor = gameColor;
-            }
-            
-            // 设置渲染器材质
-            Renderer renderer = trigger.GetComponent<Renderer>();
-            if (renderer == null)
-            {
-                renderer = trigger.GetComponentInChildren<Renderer>();
-            }
-            
-            if (renderer != null && gameColor != GameColor.None)
-            {
-                // 获取颜色材质
-                Material colorMaterial = colorData.gameColorsData[(int)gameColor].materialColor;
-                
-                if (colorMaterial != null)
-                {
-                    // 使用预定义的材质
-                    renderer.material = colorMaterial;
-                }
-                else
-                {
-                    // 使用颜色值
-                    Color color = colorData.gameColorsData[(int)gameColor].color;
-                    
-                    Material newMat = new Material(renderer.material);
-                    newMat.color = color;
-                    
-                    // 尝试设置不同着色器属性
-                    if (newMat.HasProperty("_Color"))
-                    {
-                        newMat.SetColor("_Color", color);
-                    }
-                    else if (newMat.HasProperty("_BaseColor"))
-                    {
-                        newMat.SetColor("_BaseColor", color);
-                    }
-                    
-                    renderer.material = newMat;
-                }
-            }
-        }
-        
-        /// <summary>
         /// 网格坐标转换为世界坐标
         /// </summary>
         private Vector3 GridToWorld(int x, int y)
         {
-            return new Vector3(x * gridSpacing, 0, y * gridSpacing);
+            return LevelGenerationUtility.GridToWorld(x, y, gridSpacing);
         }
         
         /// <summary>
@@ -459,9 +361,7 @@ namespace Runtime.Generators
         /// </summary>
         private Vector2Int WorldToGrid(Vector3 worldPos)
         {
-            int x = Mathf.RoundToInt(worldPos.x / gridSpacing);
-            int y = Mathf.RoundToInt(worldPos.z / gridSpacing);
-            return new Vector2Int(x, y);
+            return LevelGenerationUtility.WorldToGrid(worldPos, gridSpacing);
         }
         
         /// <summary>
@@ -478,12 +378,16 @@ namespace Runtime.Generators
             
             // 检查GridManager中是否有空Cell
             for (int i = 0; i < gridManager.GetCells().Count; i++)
-            {
+            { 
                 if (gridManager.GetCells()[i] == null)
                 {
                     Debug.LogWarning($"生成警告: GridManager中第{i}个Cell为空");
                 }
             }
+            
+            // 在检查Item之前先移除所有空Item
+            var itemList = gridManager.GetItems();
+            itemList.RemoveAll(item => item == null);
             
             // 检查GridManager中是否有空Item
             for (int i = 0; i < gridManager.GetItems().Count; i++)

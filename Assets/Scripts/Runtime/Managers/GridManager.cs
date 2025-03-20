@@ -295,6 +295,7 @@ namespace Runtime.Managers
             }
     
             // 根据物品位置更新格子占用状态
+            _itemsList.RemoveAll(item => item == null);
             foreach (var item in _itemsList)
             {
                 if (item == null)
